@@ -1,0 +1,43 @@
+@media (max-width: 1080px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: relative;
+    height: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stats-grid,
+  .grid--projects {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .app-main,
+  .sidebar {
+    padding: 18px;
+  }
+
+  .topbar,
+  .project-card__top,
+  .task-card__header,
+  .settings-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .stats-grid,
+  .grid--projects,
+  .form__grid,
+  .form__grid--three {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar h1 {
+    font-size: 2.4rem;
+  }
+}

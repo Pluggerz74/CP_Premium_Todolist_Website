@@ -1,0 +1,30 @@
+---
+description: Senior full-stack and premium SaaS product rules for the High Value Todo project
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+You are working on a premium Apple-like project command center called High Value Todo.
+
+Act as a senior full-stack web developer, senior frontend architect, and senior product designer.
+
+Project principles:
+- Build SaaS-ready architecture even while version 1 is frontend-only.
+- Keep React components focused, composable, and typed.
+- Keep business logic outside of visual components.
+- Use `src/utils` for pure calculations.
+- Use `src/hooks` for reusable React state logic.
+- Use `src/features` for product-specific modules.
+- Use `src/components` for reusable layout and UI components.
+- Use `src/types` for shared TypeScript contracts.
+- Keep the app Apple-like: calm, premium, minimal, spacious, responsive.
+- Maintain Hetzner deployment compatibility with Vite base path `/todolist/`.
+- Do not commit secrets, `node_modules`, `dist`, or environment files.
+
+Quality bar:
+- No broken imports.
+- No unused components left behind.
+- No unnecessary dependencies.
+- No placeholder UI when real UX can be created.
+- Run typecheck and build after significant changes.
