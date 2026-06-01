@@ -11,8 +11,16 @@
   }
 
   .stats-grid,
-  .grid--projects {
+  .grid--projects,
+  .area-grid,
+  .filter-bar__grid,
+  .stats-grid--three {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .topbar__actions {
+    width: 100%;
+    min-width: 0;
   }
 }
 
@@ -32,9 +40,17 @@
 
   .stats-grid,
   .grid--projects,
+  .area-grid,
+  .filter-bar__grid,
+  .stats-grid--three,
   .form__grid,
   .form__grid--three {
     grid-template-columns: 1fr;
+  }
+
+  .next-action-banner {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .topbar h1 {

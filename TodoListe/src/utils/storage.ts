@@ -1,8 +1,9 @@
-export function readStorage<T>(key: string, fallback: T): T {
+export function readStorage<T>(key: string, fallback: T, migrate?: (value: unknown) => T): T {
   try {
     const rawValue = window.localStorage.getItem(key);
     if (!rawValue) return fallback;
-    return JSON.parse(rawValue) as T;
+    const parsed = JSON.parse(rawValue) as unknown;
+    return migrate ? migrate(parsed) : (parsed as T);
   } catch {
     return fallback;
   }

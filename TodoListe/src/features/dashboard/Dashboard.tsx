@@ -1,40 +1,75 @@
+import type { ProjectComplexityMode } from "../../types/project";
 import type { Project } from "../../types/project";
 import type { Task, TaskStatus } from "../../types/task";
 import { isToday, isUpcoming } from "../../utils/dates";
-import { sortByHighValueScore } from "../../utils/scoring";
+import { getNextBestAction, getOpenTasks } from "../../utils/selectors";
 import { StatCard } from "../../components/ui/StatCard";
+import { ModeBadge } from "../../components/ui/ModeBadge";
 import { ProjectList } from "../projects/ProjectList";
 import { TaskList } from "../tasks/TaskList";
 
 type DashboardProps = {
   projects: Project[];
   tasks: Task[];
+  allTasks: Task[];
+  complexityMode: ProjectComplexityMode;
   onStatusChange: (taskId: string, status: TaskStatus) => void;
   onDelete: (taskId: string) => void;
   onFocus: (taskId: string) => void;
 };
 
-export function Dashboard({ projects, tasks, onStatusChange, onDelete, onFocus }: DashboardProps) {
-  const openTasks = tasks.filter((task) => task.status !== "done");
+export function Dashboard({
+  projects,
+  tasks,
+  allTasks,
+  complexityMode,
+  onStatusChange,
+  onDelete,
+  onFocus,
+}: DashboardProps) {
+  const openTasks = getOpenTasks(allTasks);
   const todayTasks = openTasks.filter((task) => isToday(task.dueDate));
   const upcomingTasks = openTasks.filter((task) => isUpcoming(task.dueDate));
-  const bestTasks = sortByHighValueScore(openTasks).slice(0, 4);
+  const nextAction = getNextBestAction(allTasks);
+  const complexProjects = projects.filter((project) => project.complexityMode === "complex").length;
 
   return (
     <div className="dashboard-view">
+      <div className="dashboard-view__mode">
+        <ModeBadge mode={complexityMode} />
+        <p>
+          {complexityMode === "complex"
+            ? "Hierarchy, maps, and backlog views keep massive projects calm."
+            : "Fast flat lists for everyday high-value execution."}
+        </p>
+      </div>
+
       <section className="stats-grid">
         <StatCard label="Active projects" value={projects.filter((project) => project.status === "active").length} helper="Current execution lanes" />
         <StatCard label="Open tasks" value={openTasks.length} helper="Not completed yet" />
         <StatCard label="Today" value={todayTasks.length} helper="Due today" />
-        <StatCard label="Upcoming" value={upcomingTasks.length} helper="Future deadlines" />
+        <StatCard label="Complex projects" value={complexProjects} helper="Full hierarchy enabled" />
       </section>
+
+      {nextAction ? (
+        <section className="section-block next-action-banner card">
+          <div>
+            <p className="eyebrow">Next best action</p>
+            <h2>{nextAction.title}</h2>
+            <p>Score {nextAction.highValueScore} · Due {nextAction.dueDate}</p>
+          </div>
+          <button type="button" className="button button--primary" onClick={() => onFocus(nextAction.id)}>
+            Enter focus
+          </button>
+        </section>
+      ) : null}
 
       <section className="section-block">
         <div className="section-heading">
           <p className="eyebrow">Highest leverage</p>
           <h2>Execute these first</h2>
         </div>
-        <TaskList tasks={bestTasks} projects={projects} onStatusChange={onStatusChange} onDelete={onDelete} onFocus={onFocus} />
+        <TaskList tasks={tasks} projects={projects} onStatusChange={onStatusChange} onDelete={onDelete} onFocus={onFocus} />
       </section>
 
       <section className="section-block">
@@ -42,7 +77,7 @@ export function Dashboard({ projects, tasks, onStatusChange, onDelete, onFocus }
           <p className="eyebrow">Portfolio</p>
           <h2>Projects</h2>
         </div>
-        <ProjectList projects={projects} tasks={tasks} />
+        <ProjectList projects={projects.slice(0, 4)} tasks={allTasks} />
       </section>
     </div>
   );

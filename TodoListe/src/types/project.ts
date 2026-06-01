@@ -1,5 +1,7 @@
 export type ProjectStatus = "active" | "paused" | "archived";
 
+export type ProjectComplexityMode = "simple" | "complex";
+
 export type Project = {
   id: string;
   name: string;
@@ -7,7 +9,10 @@ export type Project = {
   status: ProjectStatus;
   color: string;
   goal: string;
+  complexityMode: ProjectComplexityMode;
+  templateId?: string;
   createdAt: string;
+  updatedAt: string;
 };
 
-export type ProjectInput = Omit<Project, "id" | "createdAt">;
+export type ProjectInput = Omit<Project, "id" | "createdAt" | "updatedAt">;

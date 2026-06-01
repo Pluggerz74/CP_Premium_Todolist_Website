@@ -1,0 +1,97 @@
+import type { ProjectTemplate } from "../types/template";
+
+export const GAME_DEV_AREAS = [
+  "Game Design",
+  "Core Gameplay",
+  "Player Controller",
+  "Combat System",
+  "World and Levels",
+  "UI and Menus",
+  "Art and Animation",
+  "Audio and Music",
+  "Story and Quests",
+  "AI and NPCs",
+  "Inventory and Items",
+  "Save System",
+  "Multiplayer or Networking",
+  "Tools and Pipeline",
+  "Performance Optimization",
+  "QA and Bug Fixing",
+  "Build and Release",
+  "Marketing and Community",
+  "Documentation",
+  "Post Launch and Live Ops",
+] as const;
+
+export const projectTemplates: ProjectTemplate[] = [
+  {
+    id: "simple-todo",
+    name: "Simple Todo Project",
+    description: "Fast personal or business todos without hierarchy overhead.",
+    complexityMode: "simple",
+    defaultGoal: "Stay organized and execute what matters.",
+    defaultColor: "#7c3aed",
+    areaTitles: [],
+  },
+  {
+    id: "game-development",
+    name: "Game Development Project",
+    description: "Full production structure for indie or studio game projects.",
+    complexityMode: "complex",
+    defaultGoal: "Ship a polished game with clear production lanes.",
+    defaultColor: "#8b5cf6",
+    areaTitles: [...GAME_DEV_AREAS],
+  },
+  {
+    id: "saas-product",
+    name: "SaaS Product Project",
+    description: "Product, engineering, design, and growth lanes for SaaS builds.",
+    complexityMode: "complex",
+    defaultGoal: "Launch a scalable SaaS MVP and iterate toward product-market fit.",
+    defaultColor: "#0ea5e9",
+    areaTitles: [
+      "Product Strategy",
+      "Backend",
+      "Frontend",
+      "UI/UX",
+      "Systems",
+      "QA",
+      "Testing",
+      "Documentation",
+      "Launch",
+      "Marketing",
+      "Operations",
+    ],
+  },
+  {
+    id: "website-project",
+    name: "Website Project",
+    description: "Content, design, frontend, and launch planning for websites.",
+    complexityMode: "complex",
+    defaultGoal: "Ship a premium website with clear conversion goals.",
+    defaultColor: "#10b981",
+    areaTitles: ["Content", "Design", "Frontend", "Backend", "SEO", "Launch", "Analytics"],
+  },
+  {
+    id: "content-project",
+    name: "Content Project",
+    description: "Strategy, production, and distribution for content businesses.",
+    complexityMode: "complex",
+    defaultGoal: "Build a repeatable content engine.",
+    defaultColor: "#f97316",
+    areaTitles: ["Strategy", "Production", "Editing", "Distribution", "Community"],
+  },
+  {
+    id: "learning-project",
+    name: "Learning Project",
+    description: "Structured skill-building with simple weekly execution.",
+    complexityMode: "simple",
+    defaultGoal: "Compound rare skills over time.",
+    defaultColor: "#f43f5e",
+    areaTitles: [],
+  },
+];
+
+export function getTemplateById(id: string): ProjectTemplate | undefined {
+  return projectTemplates.find((template) => template.id === id);
+}

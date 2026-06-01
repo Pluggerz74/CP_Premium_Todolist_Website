@@ -1,7 +1,75 @@
 import type { Task } from "../types/task";
+import { calculateHighValueScore } from "../utils/scoring";
+import { getDemoComplexTasks } from "./demoHierarchy";
+
+const BASE = "2026-06-01T09:00:00.000Z";
+
+function simpleTask(
+  partial: Pick<Task, "id" | "title" | "description" | "projectId" | "status" | "dueDate" | "impact" | "urgency" | "effort"> &
+    Partial<Pick<Task, "tags" | "order">>,
+): Task {
+  const task: Task = {
+    id: partial.id,
+    title: partial.title,
+    description: partial.description,
+    projectId: partial.projectId,
+    areaId: null,
+    phaseId: null,
+    milestoneId: null,
+    epicId: null,
+    taskGroupId: null,
+    parentTaskId: null,
+    status: partial.status,
+    type: "task",
+    priority: partial.impact,
+    impact: partial.impact,
+    urgency: partial.urgency,
+    effort: partial.effort,
+    highValueScore: 0,
+    dueDate: partial.dueDate,
+    startDate: null,
+    tags: partial.tags ?? [],
+    dependencies: [],
+    blockedBy: [],
+    acceptanceCriteria: "",
+    notes: "",
+    order: partial.order ?? 0,
+    createdAt: BASE,
+    updatedAt: BASE,
+    completedAt: partial.status === "done" ? BASE : null,
+  };
+  task.highValueScore = calculateHighValueScore(task);
+  return task;
+}
 
 export const demoTasks: Task[] = [
-  {
+  simpleTask({
+    id: "task-personal-001",
+    title: "Weekly meal prep",
+    description: "Plan and prep meals for the work week.",
+    projectId: "project-personal",
+    status: "todo",
+    dueDate: "2026-06-02",
+    impact: 3,
+    urgency: 4,
+    effort: 2,
+    tags: ["health"],
+    order: 0,
+  }),
+  simpleTask({
+    id: "task-personal-002",
+    title: "Schedule dentist checkup",
+    description: "Book routine dental appointment.",
+    projectId: "project-personal",
+    status: "todo",
+    dueDate: "2026-06-05",
+    impact: 2,
+    urgency: 2,
+    effort: 1,
+    tags: ["health"],
+    order: 1,
+  }),
+  simpleTask({
     id: "task-001",
     title: "Create premium dashboard shell",
     description: "Build the Apple-like app layout with sidebar, top bar, glass cards, and responsive shell.",
@@ -11,10 +79,10 @@ export const demoTasks: Task[] = [
     impact: 5,
     urgency: 5,
     effort: 3,
-    createdAt: "2026-06-01T09:00:00.000Z",
-    updatedAt: "2026-06-01T09:00:00.000Z"
-  },
-  {
+    tags: ["product"],
+    order: 0,
+  }),
+  simpleTask({
     id: "task-002",
     title: "Implement high-value scoring utility",
     description: "Move impact, urgency, and effort calculations into a pure utility function.",
@@ -24,10 +92,10 @@ export const demoTasks: Task[] = [
     impact: 5,
     urgency: 4,
     effort: 2,
-    createdAt: "2026-06-01T09:10:00.000Z",
-    updatedAt: "2026-06-01T09:10:00.000Z"
-  },
-  {
+    tags: ["engineering"],
+    order: 1,
+  }),
+  simpleTask({
     id: "task-003",
     title: "Add task creation modal",
     description: "Create a clean form for title, description, project, status, due date, impact, urgency, and effort.",
@@ -37,23 +105,9 @@ export const demoTasks: Task[] = [
     impact: 4,
     urgency: 4,
     effort: 3,
-    createdAt: "2026-06-01T09:20:00.000Z",
-    updatedAt: "2026-06-01T09:20:00.000Z"
-  },
-  {
-    id: "task-004",
-    title: "Prepare Hetzner deployment checklist",
-    description: "Document the build and upload process for Home/public_html/todolist.",
-    projectId: "project-todolist",
-    status: "todo",
-    dueDate: "2026-06-04",
-    impact: 4,
-    urgency: 3,
-    effort: 2,
-    createdAt: "2026-06-01T09:30:00.000Z",
-    updatedAt: "2026-06-01T09:30:00.000Z"
-  },
-  {
+    order: 2,
+  }),
+  simpleTask({
     id: "task-005",
     title: "Define product positioning",
     description: "Write a crisp one-sentence USP and explain why the app is different from basic todo tools.",
@@ -63,10 +117,10 @@ export const demoTasks: Task[] = [
     impact: 5,
     urgency: 4,
     effort: 1,
-    createdAt: "2026-06-01T09:40:00.000Z",
-    updatedAt: "2026-06-01T09:40:00.000Z"
-  },
-  {
+    tags: ["brand"],
+    order: 0,
+  }),
+  simpleTask({
     id: "task-006",
     title: "Create landing page copy draft",
     description: "Write hero, benefits, feature blocks, and early-access CTA for the future SaaS version.",
@@ -76,85 +130,7 @@ export const demoTasks: Task[] = [
     impact: 4,
     urgency: 2,
     effort: 3,
-    createdAt: "2026-06-01T09:50:00.000Z",
-    updatedAt: "2026-06-01T09:50:00.000Z"
-  },
-  {
-    id: "task-007",
-    title: "Map repeated project workflows",
-    description: "Identify the workflows that should be automated first.",
-    projectId: "project-automation",
-    status: "todo",
-    dueDate: "2026-06-06",
-    impact: 4,
-    urgency: 3,
-    effort: 2,
-    createdAt: "2026-06-01T10:00:00.000Z",
-    updatedAt: "2026-06-01T10:00:00.000Z"
-  },
-  {
-    id: "task-008",
-    title: "Create weekly review automation idea list",
-    description: "Draft automation ideas for reminders, progress snapshots, and high-value task planning.",
-    projectId: "project-automation",
-    status: "todo",
-    dueDate: "2026-06-07",
-    impact: 3,
-    urgency: 2,
-    effort: 2,
-    createdAt: "2026-06-01T10:10:00.000Z",
-    updatedAt: "2026-06-01T10:10:00.000Z"
-  },
-  {
-    id: "task-009",
-    title: "Study premium SaaS dashboard patterns",
-    description: "Collect interface patterns for hierarchy, cards, focus mode, and task composer UX.",
-    projectId: "project-learning",
-    status: "todo",
-    dueDate: "2026-06-08",
-    impact: 3,
-    urgency: 2,
-    effort: 2,
-    createdAt: "2026-06-01T10:20:00.000Z",
-    updatedAt: "2026-06-01T10:20:00.000Z"
-  },
-  {
-    id: "task-010",
-    title: "Refine score labels",
-    description: "Translate numeric score into meaningful labels such as Leverage, Momentum, and Quick Win.",
-    projectId: "project-todolist",
-    status: "todo",
-    dueDate: "2026-06-02",
-    impact: 3,
-    urgency: 4,
-    effort: 1,
-    createdAt: "2026-06-01T10:30:00.000Z",
-    updatedAt: "2026-06-01T10:30:00.000Z"
-  },
-  {
-    id: "task-011",
-    title: "Design focus mode interaction",
-    description: "Create a distraction-free task execution view with clear next action and progress context.",
-    projectId: "project-todolist",
-    status: "todo",
-    dueDate: "2026-06-03",
-    impact: 4,
-    urgency: 4,
-    effort: 2,
-    createdAt: "2026-06-01T10:40:00.000Z",
-    updatedAt: "2026-06-01T10:40:00.000Z"
-  },
-  {
-    id: "task-012",
-    title: "Plan SaaS migration architecture",
-    description: "Define how localStorage data can later move to auth, database, workspaces, and subscriptions.",
-    projectId: "project-todolist",
-    status: "todo",
-    dueDate: "2026-06-10",
-    impact: 5,
-    urgency: 1,
-    effort: 4,
-    createdAt: "2026-06-01T10:50:00.000Z",
-    updatedAt: "2026-06-01T10:50:00.000Z"
-  }
+    order: 1,
+  }),
+  ...getDemoComplexTasks(),
 ];

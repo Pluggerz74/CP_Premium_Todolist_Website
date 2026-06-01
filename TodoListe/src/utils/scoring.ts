@@ -1,7 +1,13 @@
 import type { Task } from "../types/task";
 
-export function calculateHighValueScore(task: Pick<Task, "impact" | "urgency" | "effort">): number {
+export type ScoreInput = Pick<Task, "impact" | "urgency" | "effort">;
+
+export function calculateHighValueScore(task: ScoreInput): number {
   return task.impact + task.urgency - task.effort;
+}
+
+export function withHighValueScore<T extends ScoreInput>(task: T): T & { highValueScore: number } {
+  return { ...task, highValueScore: calculateHighValueScore(task) };
 }
 
 export function getScoreLabel(score: number): string {
