@@ -28,10 +28,13 @@ export function SettingsPanel({
   const storageMeta = readStorageMeta();
 
   return (
-    <section className="section-block">
+    <section className="section-block settings-panel">
       <div className="section-heading">
         <p className="eyebrow">Settings</p>
         <h2>Workspace preferences</h2>
+        <p className="settings-panel__intro">
+          Tune appearance, planning density, and local data safety without leaving your workflow.
+        </p>
       </div>
 
       <Card className="settings-card">
@@ -87,12 +90,12 @@ export function SettingsPanel({
         </div>
       </Card>
 
-      <Card className="settings-card">
+      <Card className="settings-card settings-card--persistence">
         <div>
-          <h3>Persistence</h3>
+          <h3>Storage & backup</h3>
           <p>
-            Schema version {STORAGE_VERSION}. Data is stored locally with defensive parsing, migration, and debounced writes.
-            {storageMeta.lastError ? ` Last write issue: ${storageMeta.lastError}` : ""}
+            Schema v{STORAGE_VERSION} with defensive parsing, migration, and debounced writes.
+            {storageMeta.lastError ? ` Last write issue: ${storageMeta.lastError}` : " Your data stays on this device."}
           </p>
         </div>
         <div className="settings-card__actions">

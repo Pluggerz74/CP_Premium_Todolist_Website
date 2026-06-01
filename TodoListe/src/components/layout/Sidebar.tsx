@@ -5,24 +5,24 @@ import type { AppView } from "../../types/view";
 import { ModeBadge } from "../ui/ModeBadge";
 import { Button } from "../ui/Button";
 
-const coreNav: Array<{ label: string; value: AppView }> = [
-  { label: "Dashboard", value: "dashboard" },
-  { label: "Today", value: "today" },
-  { label: "Upcoming", value: "upcoming" },
-  { label: "High Value", value: "high-value" },
-  { label: "Focus", value: "focus" },
+const coreNav: Array<{ label: string; value: AppView; icon: string }> = [
+  { label: "Dashboard", value: "dashboard", icon: "▦" },
+  { label: "Today", value: "today", icon: "◷" },
+  { label: "Upcoming", value: "upcoming", icon: "→" },
+  { label: "High Value", value: "high-value", icon: "★" },
+  { label: "Focus", value: "focus", icon: "◎" },
 ];
 
-const simpleNav: Array<{ label: string; value: AppView }> = [
-  { label: "Simple List", value: "simple-list" },
+const simpleNav: Array<{ label: string; value: AppView; icon: string }> = [
+  { label: "Simple List", value: "simple-list", icon: "≡" },
 ];
 
-const complexNav: Array<{ label: string; value: AppView }> = [
-  { label: "Projects", value: "projects" },
-  { label: "Overview", value: "project-overview" },
-  { label: "Project Map", value: "project-map" },
-  { label: "Backlog", value: "backlog" },
-  { label: "Search", value: "search" },
+const complexNav: Array<{ label: string; value: AppView; icon: string }> = [
+  { label: "Projects", value: "projects", icon: "◫" },
+  { label: "Overview", value: "project-overview", icon: "◉" },
+  { label: "Project Map", value: "project-map", icon: "⎋" },
+  { label: "Backlog", value: "backlog", icon: "▤" },
+  { label: "Search", value: "search", icon: "⌕" },
 ];
 
 type SidebarProps = {
@@ -49,7 +49,9 @@ export function Sidebar({
   return (
     <aside className="sidebar">
       <div className="brand">
-        <div className="brand__mark">✓</div>
+        <div className="brand__mark" aria-hidden="true">
+          ✓
+        </div>
         <div>
           <strong>{appConfig.name}</strong>
           <span>Command Center</span>
@@ -64,9 +66,13 @@ export function Sidebar({
         {coreNav.map((item) => (
           <button
             key={item.value}
+            type="button"
             className={activeView === item.value ? "sidebar__item is-active" : "sidebar__item"}
             onClick={() => onViewChange(item.value)}
           >
+            <span className="sidebar__item-icon" aria-hidden="true">
+              {item.icon}
+            </span>
             {item.label}
           </button>
         ))}
@@ -77,16 +83,24 @@ export function Sidebar({
         {modeNav.map((item) => (
           <button
             key={item.value}
+            type="button"
             className={activeView === item.value ? "sidebar__item is-active" : "sidebar__item"}
             onClick={() => onViewChange(item.value)}
           >
+            <span className="sidebar__item-icon" aria-hidden="true">
+              {item.icon}
+            </span>
             {item.label}
           </button>
         ))}
         <button
+          type="button"
           className={activeView === "settings" ? "sidebar__item is-active" : "sidebar__item"}
           onClick={() => onViewChange("settings")}
         >
+          <span className="sidebar__item-icon" aria-hidden="true">
+            ⚙
+          </span>
           Settings
         </button>
       </nav>
@@ -99,18 +113,23 @@ export function Sidebar({
           </Button>
         </div>
         <button
+          type="button"
           className={selectedProjectId === null ? "sidebar__project is-active" : "sidebar__project"}
           onClick={() => onProjectSelect(null)}
         >
-          All projects
+          <span className="sidebar__item-icon" aria-hidden="true">
+            ◈
+          </span>
+          <span className="sidebar__project-label">All projects</span>
         </button>
         {projects.map((project) => (
           <button
             key={project.id}
+            type="button"
             className={selectedProjectId === project.id ? "sidebar__project is-active" : "sidebar__project"}
             onClick={() => onProjectSelect(project.id)}
           >
-            <span className="project-dot" style={{ background: project.color }} />
+            <span className="project-dot" style={{ background: project.color }} aria-hidden="true" />
             <span className="sidebar__project-label">
               {project.name}
               {project.complexityMode === "complex" ? <small>Complex</small> : null}

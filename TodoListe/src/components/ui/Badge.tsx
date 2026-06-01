@@ -5,8 +5,9 @@ type BadgeTone = "neutral" | "success" | "warning" | "danger" | "premium";
 
 type BadgeProps = PropsWithChildren<{
   tone?: BadgeTone;
+  className?: string;
 }>;
 
-export function Badge({ children, tone = "neutral" }: BadgeProps) {
-  return <span className={cn("badge", `badge--${tone}`)}>{children}</span>;
+export function Badge({ children, tone = "neutral", className }: BadgeProps) {
+  return <span className={cn("badge", `badge--${tone}`, className)}>{children}</span>;
 }

@@ -12,11 +12,12 @@ export function TopBar({ searchQuery, onSearchChange, onNewTask }: TopBarProps) 
   return (
     <header className="topbar">
       <div>
-        <p className="eyebrow">Premium execution system</p>
+        <p className="eyebrow">Project command center</p>
         <h1>{appConfig.tagline}</h1>
       </div>
       <div className="topbar__actions">
         <SearchInput
+          variant="toolbar"
           value={searchQuery}
           onChange={onSearchChange}
           placeholder="Quick search tasks..."

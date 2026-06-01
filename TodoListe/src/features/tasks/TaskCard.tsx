@@ -1,6 +1,13 @@
 import type { Project } from "../../types/project";
 import type { Task, TaskStatus } from "../../types/task";
 import { formatDateLabel } from "../../utils/dates";
+import {
+  formatStatusLabel,
+  formatTaskTypeLabel,
+  getPriorityLabel,
+  getStatusTone,
+} from "../../utils/formatLabels";
+import { cn } from "../../utils/cn";
 import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
@@ -15,14 +22,16 @@ type TaskCardProps = {
 };
 
 export function TaskCard({ task, project, onStatusChange, onDelete, onFocus }: TaskCardProps) {
+  const statusTone = getStatusTone(task.status);
+
   return (
     <Card className="task-card">
       <div className="task-card__header">
         <div>
-          <Badge tone={task.status === "done" ? "success" : task.status === "in-progress" ? "warning" : "neutral"}>
-            {task.status}
+          <Badge tone={statusTone} className={`badge--status-${task.status}`}>
+            {formatStatusLabel(task.status)}
           </Badge>
-          <Badge tone="neutral">{task.type}</Badge>
+          <Badge tone="neutral">{formatTaskTypeLabel(task.type)}</Badge>
           {project ? <span className="task-card__project">{project.name}</span> : null}
         </div>
         <ScorePill score={task.highValueScore} />
@@ -42,6 +51,13 @@ export function TaskCard({ task, project, onStatusChange, onDelete, onFocus }: T
       ) : null}
 
       <div className="task-card__meta">
+        <span className="task-card__priority">
+          <span
+            className={cn("task-card__priority-dot", `task-card__priority-dot--${task.priority}`)}
+            aria-hidden="true"
+          />
+          {getPriorityLabel(task.priority)}
+        </span>
         <span>Due {formatDateLabel(task.dueDate)}</span>
         <span>Impact {task.impact}</span>
         <span>Urgency {task.urgency}</span>

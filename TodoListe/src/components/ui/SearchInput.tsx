@@ -2,11 +2,17 @@ type SearchInputProps = {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  variant?: "default" | "toolbar";
 };
 
-export function SearchInput({ value, onChange, placeholder = "Search tasks..." }: SearchInputProps) {
+export function SearchInput({
+  value,
+  onChange,
+  placeholder = "Search tasks...",
+  variant = "default",
+}: SearchInputProps) {
   return (
-    <label className="search-input">
+    <label className={variant === "toolbar" ? "search-input search-input--toolbar" : "search-input"}>
       <span className="search-input__icon" aria-hidden="true">
         ⌕
       </span>

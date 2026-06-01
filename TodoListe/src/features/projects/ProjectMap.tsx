@@ -138,20 +138,22 @@ export function ProjectMap({
       <p className="project-map__intro">
         Progressive disclosure keeps massive projects manageable. Expand areas to drill into phases, milestones, epics, and tasks.
       </p>
-      {tree.map((node) => (
-        <TreeNodeSection
-          key={node.id}
-          node={node}
-          level={0}
-          collapsedSections={collapsedSections}
-          onToggleSection={onToggleSection}
-          taskIndex={taskIndex}
-          projectMap={projectMap}
-          onStatusChange={onStatusChange}
-          onDelete={onDelete}
-          onFocus={onFocus}
-        />
-      ))}
+      <div className="project-map__tree">
+        {tree.map((node) => (
+          <TreeNodeSection
+            key={node.id}
+            node={node}
+            level={0}
+            collapsedSections={collapsedSections}
+            onToggleSection={onToggleSection}
+            taskIndex={taskIndex}
+            projectMap={projectMap}
+            onStatusChange={onStatusChange}
+            onDelete={onDelete}
+            onFocus={onFocus}
+          />
+        ))}
+      </div>
     </div>
   );
 }

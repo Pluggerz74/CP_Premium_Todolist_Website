@@ -90,7 +90,12 @@ export function ProjectOverview({ project, hierarchy, taskIndex }: ProjectOvervi
                   <p>{area.description}</p>
                   <div className="area-card__meta">
                     <span>{areaOpen} open</span>
-                    <span>{stats.total} total</span>
+                    <span>{stats.percent}% done</span>
+                  </div>
+                  <div className="area-card__progress">
+                    <div className="progress__track">
+                      <span style={{ width: `${stats.percent}%` }} />
+                    </div>
                   </div>
                 </Card>
               );
