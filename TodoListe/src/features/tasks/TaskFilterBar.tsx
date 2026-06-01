@@ -2,8 +2,7 @@ import type { TaskFilterState } from "../../types/appSettings";
 import type { ProjectHierarchyStore } from "../../types/hierarchy";
 import type { Project } from "../../types/project";
 import type { ViewDensity } from "../../types/appSettings";
-import { getAllTags } from "../../utils/selectors";
-import type { Task } from "../../types/task";
+import type { TaskIndex } from "../../utils/taskIndex";
 import { Button } from "../../components/ui/Button";
 import { SearchInput } from "../../components/ui/SearchInput";
 import { getProjectAreas } from "../../utils/hierarchy";
@@ -11,7 +10,7 @@ import { getProjectAreas } from "../../utils/hierarchy";
 type TaskFilterBarProps = {
   filters: TaskFilterState;
   projects: Project[];
-  tasks: Task[];
+  taskIndex: TaskIndex;
   hierarchy: ProjectHierarchyStore;
   viewDensity: ViewDensity;
   onFiltersChange: (partial: Partial<TaskFilterState>) => void;
@@ -22,14 +21,14 @@ type TaskFilterBarProps = {
 export function TaskFilterBar({
   filters,
   projects,
-  tasks,
+  taskIndex,
   hierarchy,
   viewDensity,
   onFiltersChange,
   onReset,
   onDensityChange,
 }: TaskFilterBarProps) {
-  const tags = getAllTags(tasks);
+  const tags = taskIndex.allTags;
   const areas = filters.projectId ? getProjectAreas(hierarchy, filters.projectId) : [];
   const milestones = filters.areaId
     ? hierarchy.milestones.filter((item) => item.areaId === filters.areaId)

@@ -1,6 +1,7 @@
 import type { TaskFilterState } from "../types/appSettings";
 import type { Project } from "../types/project";
 import type { Task, TaskStatus } from "../types/task";
+import type { TaskIndex } from "./taskIndex";
 import { isToday, isUpcoming } from "./dates";
 import { calculateHighValueScore, sortByHighValueScore } from "./scoring";
 
@@ -57,6 +58,7 @@ export function normalizeTask(task: Partial<Task> & Pick<Task, "id" | "title" | 
 
 export function filterTasks(tasks: Task[], filters: TaskFilterState): Task[] {
   const query = filters.searchQuery.trim().toLowerCase();
+  const hasQuery = query.length > 0;
 
   return tasks.filter((task) => {
     if (filters.projectId && task.projectId !== filters.projectId) return false;
@@ -66,7 +68,7 @@ export function filterTasks(tasks: Task[], filters: TaskFilterState): Task[] {
     if (filters.tag && !task.tags.includes(filters.tag)) return false;
     if (filters.minScore !== null && task.highValueScore < filters.minScore) return false;
 
-    if (!query) return true;
+    if (!hasQuery) return true;
 
     return (
       task.title.toLowerCase().includes(query) ||
@@ -75,6 +77,20 @@ export function filterTasks(tasks: Task[], filters: TaskFilterState): Task[] {
       task.notes.toLowerCase().includes(query)
     );
   });
+}
+
+export function filterTasksWithIndex(tasks: Task[], filters: TaskFilterState, index: TaskIndex): Task[] {
+  let pool = tasks;
+
+  if (filters.projectId) {
+    pool = index.byProjectId.get(filters.projectId) ?? [];
+  } else if (filters.areaId) {
+    pool = index.byAreaId.get(filters.areaId) ?? [];
+  } else if (filters.milestoneId) {
+    pool = index.byMilestoneId.get(filters.milestoneId) ?? [];
+  }
+
+  return filterTasks(pool, filters);
 }
 
 export function getOpenTasks(tasks: Task[]): Task[] {
@@ -108,10 +124,37 @@ export function getComplexModeTasks(tasks: Task[], projects: Project[]): Task[] 
   return tasks.filter((task) => complexProjectIds.has(task.projectId));
 }
 
+export function getSimpleModeTasksFromIndex(tasks: Task[], index: TaskIndex): Task[] {
+  return tasks.filter((task) => index.simpleProjectIds.has(task.projectId));
+}
+
+export function getComplexModeTasksFromIndex(tasks: Task[], index: TaskIndex): Task[] {
+  return tasks.filter((task) => index.complexProjectIds.has(task.projectId));
+}
+
 export function getAllTags(tasks: Task[]): string[] {
   const tags = new Set<string>();
-  tasks.forEach((task) => task.tags.forEach((tag) => tags.add(tag)));
+  for (const task of tasks) {
+    for (const tag of task.tags) tags.add(tag);
+  }
   return [...tags].sort();
+}
+
+export function getAllTagsFromIndex(index: TaskIndex): string[] {
+  return index.allTags;
+}
+
+export function getBlockedTasks(tasks: Task[]): Task[] {
+  return getOpenTasks(tasks).filter((task) => task.blockedBy.length > 0);
+}
+
+export function getChildTasks(tasks: Task[], parentTaskId: string): Task[] {
+  return tasks.filter((task) => task.parentTaskId === parentTaskId).sort((a, b) => a.order - b.order);
+}
+
+export function getChildTasksFromIndex(index: TaskIndex, parentTaskId: string): Task[] {
+  const children = index.byParentTaskId.get(parentTaskId) ?? [];
+  return [...children].sort((a, b) => a.order - b.order);
 }
 
 export function getNextBestAction(tasks: Task[]): Task | null {
@@ -142,4 +185,14 @@ export function scopeTasksByMode(
   if (mode === "all") return tasks;
   if (mode === "simple") return getSimpleModeTasks(tasks, projects);
   return getComplexModeTasks(tasks, projects);
+}
+
+export function scopeTasksByModeWithIndex(
+  tasks: Task[],
+  index: TaskIndex,
+  mode: "simple" | "complex" | "all",
+): Task[] {
+  if (mode === "all") return tasks;
+  if (mode === "simple") return getSimpleModeTasksFromIndex(tasks, index);
+  return getComplexModeTasksFromIndex(tasks, index);
 }

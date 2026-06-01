@@ -827,3 +827,23 @@ textarea {
 .project-card__actions {
   margin-top: 18px;
 }
+
+.storage-banner {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface-strong);
+  color: var(--muted-strong);
+  font-size: 0.9rem;
+}
+
+.storage-banner--warning {
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+}
+
+.compact-table__virtual,
+.task-list__virtual {
+  border-top: 1px solid var(--border);
+}

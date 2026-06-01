@@ -1,7 +1,9 @@
+import { useMemo } from "react";
 import type { Project } from "../../types/project";
 import type { Task, TaskStatus } from "../../types/task";
 import type { ViewDensity } from "../../types/appSettings";
-import { getSimpleModeTasks } from "../../utils/selectors";
+import type { TaskIndex } from "../../utils/taskIndex";
+import { getSimpleModeTasksFromIndex } from "../../utils/selectors";
 import { sortByHighValueScore } from "../../utils/scoring";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { TaskList } from "../tasks/TaskList";
@@ -10,6 +12,8 @@ import { CompactTaskTable } from "./CompactTaskTable";
 type SimpleListPanelProps = {
   projects: Project[];
   tasks: Task[];
+  taskIndex: TaskIndex;
+  projectMap: Map<string, Project>;
   viewDensity: ViewDensity;
   onStatusChange: (taskId: string, status: TaskStatus) => void;
   onDelete: (taskId: string) => void;
@@ -17,14 +21,20 @@ type SimpleListPanelProps = {
 };
 
 export function SimpleListPanel({
-  projects,
   tasks,
+  taskIndex,
+  projectMap,
   viewDensity,
   onStatusChange,
   onDelete,
   onFocus,
 }: SimpleListPanelProps) {
-  const simpleTasks = sortByHighValueScore(getSimpleModeTasks(tasks, projects));
+  const simpleTasks = useMemo(
+    () => sortByHighValueScore(getSimpleModeTasksFromIndex(tasks, taskIndex)),
+    [tasks, taskIndex],
+  );
+
+  const projects = useMemo(() => [...projectMap.values()], [projectMap]);
 
   if (simpleTasks.length === 0) {
     return (
@@ -40,6 +50,7 @@ export function SimpleListPanel({
       <CompactTaskTable
         tasks={simpleTasks}
         projects={projects}
+        projectMap={projectMap}
         onStatusChange={onStatusChange}
         onDelete={onDelete}
         onFocus={onFocus}
@@ -51,6 +62,7 @@ export function SimpleListPanel({
     <TaskList
       tasks={simpleTasks}
       projects={projects}
+      projectMap={projectMap}
       onStatusChange={onStatusChange}
       onDelete={onDelete}
       onFocus={onFocus}

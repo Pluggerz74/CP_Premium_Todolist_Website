@@ -1,7 +1,9 @@
+import { memo, useMemo } from "react";
 import type { ProjectHierarchyStore } from "../../types/hierarchy";
 import type { Project } from "../../types/project";
 import type { Task, TaskStatus } from "../../types/task";
 import { buildProjectTree, type HierarchyTreeNode } from "../../utils/hierarchy";
+import type { TaskIndex } from "../../utils/taskIndex";
 import { CollapsibleSection } from "../../components/ui/CollapsibleSection";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { CompactTaskTable } from "./CompactTaskTable";
@@ -9,7 +11,7 @@ import { CompactTaskTable } from "./CompactTaskTable";
 type ProjectMapProps = {
   project: Project | undefined;
   hierarchy: ProjectHierarchyStore;
-  tasks: Task[];
+  taskIndex: TaskIndex;
   collapsedSections: Record<string, boolean>;
   onToggleSection: (sectionId: string) => void;
   onStatusChange: (taskId: string, status: TaskStatus) => void;
@@ -17,29 +19,32 @@ type ProjectMapProps = {
   onFocus: (taskId: string) => void;
 };
 
-function TreeNodeSection({
-  node,
-  level,
-  collapsedSections,
-  onToggleSection,
-  tasks,
-  projects,
-  onStatusChange,
-  onDelete,
-  onFocus,
-}: {
+type TreeNodeSectionProps = {
   node: HierarchyTreeNode;
   level: number;
   collapsedSections: Record<string, boolean>;
   onToggleSection: (sectionId: string) => void;
-  tasks: Task[];
-  projects: Project[];
+  taskIndex: TaskIndex;
+  projectMap: Map<string, Project>;
   onStatusChange: (taskId: string, status: TaskStatus) => void;
   onDelete: (taskId: string) => void;
   onFocus: (taskId: string) => void;
-}) {
+};
+
+const TreeNodeSection = memo(function TreeNodeSection({
+  node,
+  level,
+  collapsedSections,
+  onToggleSection,
+  taskIndex,
+  projectMap,
+  onStatusChange,
+  onDelete,
+  onFocus,
+}: TreeNodeSectionProps) {
   const collapsed = collapsedSections[node.id] ?? level > 1;
-  const nodeTasks = node.type === "task" ? tasks.filter((task) => task.id === node.id) : [];
+  const nodeTask = node.type === "task" ? taskIndex.byId.get(node.id) : undefined;
+  const projects = useMemo(() => [...projectMap.values()], [projectMap]);
 
   return (
     <CollapsibleSection
@@ -51,43 +56,56 @@ function TreeNodeSection({
       onToggle={() => onToggleSection(node.id)}
       level={level}
     >
-      {node.type === "task" && nodeTasks.length > 0 ? (
+      {node.type === "task" && nodeTask ? (
         <CompactTaskTable
-          tasks={nodeTasks}
+          tasks={[nodeTask]}
           projects={projects}
+          projectMap={projectMap}
           onStatusChange={onStatusChange}
           onDelete={onDelete}
           onFocus={onFocus}
         />
       ) : null}
-      {node.children.map((child) => (
-        <TreeNodeSection
-          key={child.id}
-          node={child}
-          level={level + 1}
-          collapsedSections={collapsedSections}
-          onToggleSection={onToggleSection}
-          tasks={tasks}
-          projects={projects}
-          onStatusChange={onStatusChange}
-          onDelete={onDelete}
-          onFocus={onFocus}
-        />
-      ))}
+      {!collapsed
+        ? node.children.map((child) => (
+            <TreeNodeSection
+              key={child.id}
+              node={child}
+              level={level + 1}
+              collapsedSections={collapsedSections}
+              onToggleSection={onToggleSection}
+              taskIndex={taskIndex}
+              projectMap={projectMap}
+              onStatusChange={onStatusChange}
+              onDelete={onDelete}
+              onFocus={onFocus}
+            />
+          ))
+        : null}
     </CollapsibleSection>
   );
-}
+});
 
 export function ProjectMap({
   project,
   hierarchy,
-  tasks,
+  taskIndex,
   collapsedSections,
   onToggleSection,
   onStatusChange,
   onDelete,
   onFocus,
 }: ProjectMapProps) {
+  const projectMap = useMemo(
+    () => (project ? new Map([[project.id, project]]) : new Map<string, Project>()),
+    [project],
+  );
+
+  const tree = useMemo(() => {
+    if (!project) return [];
+    return buildProjectTree(project.id, hierarchy, taskIndex);
+  }, [project, hierarchy, taskIndex]);
+
   if (!project) {
     return (
       <EmptyState
@@ -105,8 +123,6 @@ export function ProjectMap({
       />
     );
   }
-
-  const tree = buildProjectTree(project.id, hierarchy, tasks);
 
   if (tree.length === 0) {
     return (
@@ -129,8 +145,8 @@ export function ProjectMap({
           level={0}
           collapsedSections={collapsedSections}
           onToggleSection={onToggleSection}
-          tasks={tasks}
-          projects={[project]}
+          taskIndex={taskIndex}
+          projectMap={projectMap}
           onStatusChange={onStatusChange}
           onDelete={onDelete}
           onFocus={onFocus}

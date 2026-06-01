@@ -1,8 +1,10 @@
+import { useMemo } from "react";
 import type { ProjectHierarchyStore } from "../../types/hierarchy";
 import type { Project } from "../../types/project";
 import type { Task } from "../../types/task";
-import { getProjectAreas, getTasksForProject } from "../../utils/hierarchy";
-import { getProjectProgress } from "../../utils/progress";
+import type { TaskIndex } from "../../utils/taskIndex";
+import { getProjectAreas } from "../../utils/hierarchy";
+import { getProgressByArea, getProjectProgress } from "../../utils/progress";
 import { sortByHighValueScore } from "../../utils/scoring";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { StatCard } from "../../components/ui/StatCard";
@@ -13,9 +15,27 @@ type ProjectOverviewProps = {
   project: Project | undefined;
   hierarchy: ProjectHierarchyStore;
   tasks: Task[];
+  taskIndex: TaskIndex;
 };
 
-export function ProjectOverview({ project, hierarchy, tasks }: ProjectOverviewProps) {
+export function ProjectOverview({ project, hierarchy, taskIndex }: ProjectOverviewProps) {
+  const projectTasks = useMemo(
+    () => (project ? taskIndex.byProjectId.get(project.id) ?? [] : []),
+    [project, taskIndex],
+  );
+
+  const openTasks = useMemo(() => projectTasks.filter((task) => task.status !== "done"), [projectTasks]);
+  const areas = useMemo(
+    () => (project ? getProjectAreas(hierarchy, project.id) : []),
+    [project, hierarchy],
+  );
+  const progress = useMemo(() => getProjectProgress(projectTasks), [projectTasks]);
+  const areaProgress = useMemo(
+    () => (project ? getProgressByArea(hierarchy, project.id, taskIndex) : []),
+    [project, hierarchy, taskIndex],
+  );
+  const topTasks = useMemo(() => sortByHighValueScore(openTasks).slice(0, 5), [openTasks]);
+
   if (!project) {
     return (
       <EmptyState
@@ -25,11 +45,7 @@ export function ProjectOverview({ project, hierarchy, tasks }: ProjectOverviewPr
     );
   }
 
-  const projectTasks = getTasksForProject(tasks, project.id);
-  const openTasks = projectTasks.filter((task) => task.status !== "done");
-  const areas = getProjectAreas(hierarchy, project.id);
-  const progress = getProjectProgress(projectTasks);
-  const topTasks = sortByHighValueScore(openTasks).slice(0, 5);
+  const areaProgressMap = new Map(areaProgress.map((item) => [item.areaId, item]));
 
   return (
     <div className="project-overview">
@@ -66,15 +82,15 @@ export function ProjectOverview({ project, hierarchy, tasks }: ProjectOverviewPr
           </div>
           <div className="area-grid">
             {areas.map((area) => {
-              const areaTasks = projectTasks.filter((task) => task.areaId === area.id);
-              const areaOpen = areaTasks.filter((task) => task.status !== "done").length;
+              const stats = areaProgressMap.get(area.id) ?? { total: 0, completed: 0, percent: 0, areaId: area.id };
+              const areaOpen = stats.total - stats.completed;
               return (
                 <Card key={area.id} className="area-card">
                   <h3>{area.title}</h3>
                   <p>{area.description}</p>
                   <div className="area-card__meta">
                     <span>{areaOpen} open</span>
-                    <span>{areaTasks.length} total</span>
+                    <span>{stats.total} total</span>
                   </div>
                 </Card>
               );

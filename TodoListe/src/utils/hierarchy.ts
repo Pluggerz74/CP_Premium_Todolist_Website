@@ -1,6 +1,7 @@
 import type { BreadcrumbItem, Epic, Milestone, ProjectArea, ProjectHierarchyStore, ProjectPhase, TaskGroup } from "../types/hierarchy";
 import type { Project } from "../types/project";
 import type { Task } from "../types/task";
+import type { TaskIndex } from "./taskIndex";
 
 export function getProjectAreas(hierarchy: ProjectHierarchyStore, projectId: string): ProjectArea[] {
   return hierarchy.areas.filter((area) => area.projectId === projectId).sort((a, b) => a.order - b.order);
@@ -75,15 +76,22 @@ export type HierarchyTreeNode = {
   children: HierarchyTreeNode[];
 };
 
+function countTaskStats(tasks: Task[]): { taskCount: number; openTaskCount: number } {
+  let openTaskCount = 0;
+  for (const task of tasks) {
+    if (task.status !== "done") openTaskCount += 1;
+  }
+  return { taskCount: tasks.length, openTaskCount };
+}
+
 export function buildProjectTree(
   projectId: string,
   hierarchy: ProjectHierarchyStore,
-  tasks: Task[],
+  index: TaskIndex,
 ): HierarchyTreeNode[] {
-  const projectTasks = getTasksForProject(tasks, projectId);
-
   return getProjectAreas(hierarchy, projectId).map((area) => {
-    const areaTasks = projectTasks.filter((task) => task.areaId === area.id);
+    const areaTasks = index.byAreaId.get(area.id) ?? [];
+    const areaStats = countTaskStats(areaTasks);
     const phases = getAreaPhases(hierarchy, area.id);
 
     return {
@@ -91,10 +99,11 @@ export function buildProjectTree(
       type: "area" as const,
       label: area.title,
       description: area.description,
-      taskCount: areaTasks.length,
-      openTaskCount: areaTasks.filter((task) => task.status !== "done").length,
+      taskCount: areaStats.taskCount,
+      openTaskCount: areaStats.openTaskCount,
       children: phases.map((phase) => {
         const phaseTasks = areaTasks.filter((task) => task.phaseId === phase.id);
+        const phaseStats = countTaskStats(phaseTasks);
         const milestones = getPhaseMilestones(hierarchy, phase.id);
 
         return {
@@ -102,10 +111,11 @@ export function buildProjectTree(
           type: "phase" as const,
           label: phase.title,
           description: phase.description,
-          taskCount: phaseTasks.length,
-          openTaskCount: phaseTasks.filter((task) => task.status !== "done").length,
+          taskCount: phaseStats.taskCount,
+          openTaskCount: phaseStats.openTaskCount,
           children: milestones.map((milestone) => {
-            const milestoneTasks = phaseTasks.filter((task) => task.milestoneId === milestone.id);
+            const milestoneTasks = index.byMilestoneId.get(milestone.id) ?? phaseTasks.filter((task) => task.milestoneId === milestone.id);
+            const milestoneStats = countTaskStats(milestoneTasks);
             const epics = getMilestoneEpics(hierarchy, milestone.id);
 
             return {
@@ -113,10 +123,11 @@ export function buildProjectTree(
               type: "milestone" as const,
               label: milestone.title,
               description: milestone.description,
-              taskCount: milestoneTasks.length,
-              openTaskCount: milestoneTasks.filter((task) => task.status !== "done").length,
+              taskCount: milestoneStats.taskCount,
+              openTaskCount: milestoneStats.openTaskCount,
               children: epics.map((epic) => {
-                const epicTasks = milestoneTasks.filter((task) => task.epicId === epic.id);
+                const epicTasks = index.byEpicId.get(epic.id) ?? milestoneTasks.filter((task) => task.epicId === epic.id);
+                const epicStats = countTaskStats(epicTasks);
                 const groups = getEpicTaskGroups(hierarchy, epic.id);
 
                 return {
@@ -124,18 +135,19 @@ export function buildProjectTree(
                   type: "epic" as const,
                   label: epic.title,
                   description: epic.description,
-                  taskCount: epicTasks.length,
-                  openTaskCount: epicTasks.filter((task) => task.status !== "done").length,
+                  taskCount: epicStats.taskCount,
+                  openTaskCount: epicStats.openTaskCount,
                   children: groups.map((group) => {
-                    const groupTasks = epicTasks.filter((task) => task.taskGroupId === group.id);
+                    const groupTasks = index.byTaskGroupId.get(group.id) ?? epicTasks.filter((task) => task.taskGroupId === group.id);
+                    const groupStats = countTaskStats(groupTasks);
 
                     return {
                       id: group.id,
                       type: "taskGroup" as const,
                       label: group.title,
                       description: group.description,
-                      taskCount: groupTasks.length,
-                      openTaskCount: groupTasks.filter((task) => task.status !== "done").length,
+                      taskCount: groupStats.taskCount,
+                      openTaskCount: groupStats.openTaskCount,
                       children: groupTasks.map((task) => ({
                         id: task.id,
                         type: "task" as const,

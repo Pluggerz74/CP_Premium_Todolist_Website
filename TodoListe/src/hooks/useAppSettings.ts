@@ -1,7 +1,7 @@
 import { storageKeys } from "../constants/storageKeys";
 import type { AppSettings, TaskFilterState } from "../types/appSettings";
 import { defaultTaskFilters } from "../utils/selectors";
-import { migrateAppSettings } from "../utils/migration";
+import { migrateAppSettings, migrateTaskFilters } from "../utils/migration";
 import { readStorage } from "../utils/storage";
 import { useLocalStorage } from "./useLocalStorage";
 
@@ -21,6 +21,7 @@ export function useAppSettings() {
   const [filters, setFilters] = useLocalStorage<TaskFilterState>(
     storageKeys.taskFilters,
     defaultTaskFilters,
+    migrateTaskFilters,
   );
 
   function setComplexityMode(complexityMode: AppSettings["complexityMode"]) {

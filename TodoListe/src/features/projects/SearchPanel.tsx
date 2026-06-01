@@ -8,6 +8,7 @@ import { CompactTaskTable } from "./CompactTaskTable";
 type SearchPanelProps = {
   projects: Project[];
   tasks: Task[];
+  projectMap?: Map<string, Project>;
   query: string;
   viewDensity: ViewDensity;
   onStatusChange: (taskId: string, status: TaskStatus) => void;
@@ -18,6 +19,7 @@ type SearchPanelProps = {
 export function SearchPanel({
   projects,
   tasks,
+  projectMap,
   query,
   viewDensity,
   onStatusChange,
@@ -47,6 +49,7 @@ export function SearchPanel({
       <CompactTaskTable
         tasks={tasks}
         projects={projects}
+        projectMap={projectMap}
         onStatusChange={onStatusChange}
         onDelete={onDelete}
         onFocus={onFocus}
@@ -58,6 +61,7 @@ export function SearchPanel({
     <TaskList
       tasks={tasks}
       projects={projects}
+      projectMap={projectMap}
       onStatusChange={onStatusChange}
       onDelete={onDelete}
       onFocus={onFocus}

@@ -9,6 +9,11 @@ export const storageKeys = {
   selectedProjectId: `${appConfig.localStorageNamespace}:selected-project-id`,
   appSettings: `${appConfig.localStorageNamespace}:app-settings`,
   taskFilters: `${appConfig.localStorageNamespace}:task-filters`,
+  schemaVersion: `${appConfig.localStorageNamespace}:schema-version`,
+  storageMeta: `${appConfig.localStorageNamespace}:storage-meta`,
 } as const;
 
+/** Current persisted schema version — bump when storage shape changes. */
 export const STORAGE_VERSION = 2;
+
+export const storageKeyPrefix = `${appConfig.localStorageNamespace}:`;

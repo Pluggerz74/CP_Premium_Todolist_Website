@@ -1,6 +1,8 @@
+import { useMemo } from "react";
 import type { Project } from "../../types/project";
 import type { Task, TaskStatus } from "../../types/task";
 import type { ViewDensity } from "../../types/appSettings";
+import type { TaskIndex } from "../../utils/taskIndex";
 import { sortByHighValueScore } from "../../utils/scoring";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { TaskList } from "../tasks/TaskList";
@@ -9,6 +11,8 @@ import { CompactTaskTable } from "./CompactTaskTable";
 type BacklogPanelProps = {
   projects: Project[];
   tasks: Task[];
+  taskIndex: TaskIndex;
+  projectMap: Map<string, Project>;
   viewDensity: ViewDensity;
   onStatusChange: (taskId: string, status: TaskStatus) => void;
   onDelete: (taskId: string) => void;
@@ -16,18 +20,20 @@ type BacklogPanelProps = {
 };
 
 export function BacklogPanel({
-  projects,
   tasks,
+  taskIndex,
+  projectMap,
   viewDensity,
   onStatusChange,
   onDelete,
   onFocus,
 }: BacklogPanelProps) {
-  const complexProjectIds = new Set(
-    projects.filter((project) => project.complexityMode === "complex").map((project) => project.id),
-  );
-  const backlogTasks = sortByHighValueScore(
-    tasks.filter((task) => complexProjectIds.has(task.projectId) && task.status !== "done"),
+  const backlogTasks = useMemo(
+    () =>
+      sortByHighValueScore(
+        tasks.filter((task) => taskIndex.complexProjectIds.has(task.projectId) && task.status !== "done"),
+      ),
+    [tasks, taskIndex],
   );
 
   if (backlogTasks.length === 0) {
@@ -39,11 +45,14 @@ export function BacklogPanel({
     );
   }
 
+  const projects = useMemo(() => [...projectMap.values()], [projectMap]);
+
   if (viewDensity === "compact") {
     return (
       <CompactTaskTable
         tasks={backlogTasks}
         projects={projects}
+        projectMap={projectMap}
         onStatusChange={onStatusChange}
         onDelete={onDelete}
         onFocus={onFocus}
@@ -55,6 +64,7 @@ export function BacklogPanel({
     <TaskList
       tasks={backlogTasks}
       projects={projects}
+      projectMap={projectMap}
       onStatusChange={onStatusChange}
       onDelete={onDelete}
       onFocus={onFocus}

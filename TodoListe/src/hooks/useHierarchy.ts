@@ -2,6 +2,7 @@ import { storageKeys } from "../constants/storageKeys";
 import { demoHierarchy } from "../data/demoHierarchy";
 import type { ProjectHierarchyStore } from "../types/hierarchy";
 import { removeProjectHierarchy } from "../utils/hierarchy";
+import { migrateHierarchy } from "../utils/migration";
 import { readStorage } from "../utils/storage";
 import { useLocalStorage } from "./useLocalStorage";
 
@@ -9,6 +10,7 @@ export function useHierarchy() {
   const [hierarchy, setHierarchy] = useLocalStorage<ProjectHierarchyStore>(
     storageKeys.hierarchy,
     demoHierarchy,
+    migrateHierarchy,
   );
 
   function addHierarchy(addition: ProjectHierarchyStore) {
@@ -30,5 +32,5 @@ export function useHierarchy() {
 }
 
 export function readHierarchyFromStorage(): ProjectHierarchyStore {
-  return readStorage(storageKeys.hierarchy, demoHierarchy);
+  return readStorage(storageKeys.hierarchy, demoHierarchy, migrateHierarchy);
 }

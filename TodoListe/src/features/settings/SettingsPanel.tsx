@@ -1,5 +1,8 @@
+import { STORAGE_VERSION } from "../../constants/storageKeys";
 import type { ThemeMode } from "../../types/theme";
 import type { AppSettings } from "../../types/appSettings";
+import { downloadAppBackup } from "../../utils/dataBackup";
+import { readStorageMeta } from "../../utils/storageMigration";
 import { Card } from "../../components/ui/Card";
 import { ThemeToggle } from "../../components/ui/ThemeToggle";
 import { ModeBadge } from "../../components/ui/ModeBadge";
@@ -22,6 +25,8 @@ export function SettingsPanel({
   onDensityChange,
   onResetDemoData,
 }: SettingsPanelProps) {
+  const storageMeta = readStorageMeta();
+
   return (
     <section className="section-block">
       <div className="section-heading">
@@ -85,13 +90,21 @@ export function SettingsPanel({
       <Card className="settings-card">
         <div>
           <h3>Persistence</h3>
-          <p>Version 1 stores projects, hierarchy, and tasks locally in your browser via a storage abstraction ready for future SaaS migration.</p>
+          <p>
+            Schema version {STORAGE_VERSION}. Data is stored locally with defensive parsing, migration, and debounced writes.
+            {storageMeta.lastError ? ` Last write issue: ${storageMeta.lastError}` : ""}
+          </p>
         </div>
-        {onResetDemoData ? (
-          <Button variant="secondary" onClick={onResetDemoData}>
-            Reload demo data
+        <div className="settings-card__actions">
+          <Button variant="secondary" onClick={downloadAppBackup}>
+            Download backup
           </Button>
-        ) : null}
+          {onResetDemoData ? (
+            <Button variant="secondary" onClick={onResetDemoData}>
+              Reload demo data
+            </Button>
+          ) : null}
+        </div>
       </Card>
     </section>
   );

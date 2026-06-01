@@ -17,29 +17,33 @@ import { SettingsPanel } from "./features/settings/SettingsPanel";
 import { TaskFilterBar } from "./features/tasks/TaskFilterBar";
 import { getViewEyebrow, getViewTitle } from "./features/tasks/TaskFilters";
 import { TaskForm } from "./features/tasks/TaskForm";
-import { demoHierarchy } from "./data/demoHierarchy";
-import { demoProjects } from "./data/demoProjects";
-import { demoTasks } from "./data/demoTasks";
 import { useAppSettings } from "./hooks/useAppSettings";
 import { useHierarchy } from "./hooks/useHierarchy";
 import { useProjects } from "./hooks/useProjects";
+import { useTaskIndex, useProjectMap } from "./hooks/useTaskIndex";
 import { useTasks } from "./hooks/useTasks";
 import { useTheme } from "./hooks/useTheme";
 import { useViewState } from "./hooks/useViewState";
 import type { ProjectTemplateId } from "./types/template";
 import type { TaskInput, TaskStatus } from "./types/task";
+import { getDemoResetPayload } from "./utils/dataBackup";
 import {
-  filterTasks,
+  filterTasksWithIndex,
   getHighValueTasks,
   getNextBestAction,
   getTodayTasks,
   getUpcomingTasks,
-  scopeTasksByMode,
+  scopeTasksByModeWithIndex,
   scopeTasksByProject,
 } from "./utils/selectors";
 import { sortByHighValueScore } from "./utils/scoring";
+import type { StorageInitResult } from "./utils/storageMigration";
 
-export function App() {
+type AppProps = {
+  storageInit?: StorageInitResult;
+};
+
+export function App({ storageInit }: AppProps) {
   const { projects, createProjectWithTemplate, setProjects } = useProjects();
   const { tasks, createTask, updateTaskStatus, deleteTask, setTasks } = useTasks();
   const { hierarchy, addHierarchy, setHierarchy } = useHierarchy();
@@ -58,36 +62,40 @@ export function App() {
   const [isProjectModalOpen, setProjectModalOpen] = useState(false);
   const [focusTaskId, setFocusTaskId] = useState<string | null>(null);
 
+  const taskIndex = useTaskIndex(tasks, projects);
+  const projectMap = useProjectMap(projects);
+
   const selectedProject = useMemo(
-    () => projects.find((project) => project.id === selectedProjectId),
-    [projects, selectedProjectId],
+    () => (selectedProjectId ? projectMap.get(selectedProjectId) : undefined),
+    [projectMap, selectedProjectId],
   );
 
   const scopedTasks = useMemo(() => {
-    let result = scopeTasksByMode(tasks, projects, settings.complexityMode);
+    let result = scopeTasksByModeWithIndex(tasks, taskIndex, settings.complexityMode);
     result = scopeTasksByProject(result, selectedProjectId);
     return sortByHighValueScore(result);
-  }, [tasks, projects, settings.complexityMode, selectedProjectId]);
+  }, [tasks, taskIndex, settings.complexityMode, selectedProjectId]);
 
   const filteredTasks = useMemo(() => {
     const mergedFilters = {
       ...filters,
-      searchQuery: filters.searchQuery || (activeView === "search" ? filters.searchQuery : filters.searchQuery),
       projectId: filters.projectId ?? selectedProjectId,
     };
-    return filterTasks(scopedTasks, mergedFilters);
-  }, [scopedTasks, filters, selectedProjectId, activeView]);
+    return filterTasksWithIndex(scopedTasks, mergedFilters, taskIndex);
+  }, [scopedTasks, filters, selectedProjectId, taskIndex]);
 
   const focusTask = useMemo(() => {
-    if (focusTaskId) return tasks.find((task) => task.id === focusTaskId) ?? null;
-    return getNextBestAction(scopeTasksByMode(tasks, projects, settings.complexityMode));
-  }, [focusTaskId, tasks, projects, settings.complexityMode]);
+    if (focusTaskId) return taskIndex.byId.get(focusTaskId) ?? null;
+    return getNextBestAction(scopeTasksByModeWithIndex(tasks, taskIndex, settings.complexityMode));
+  }, [focusTaskId, tasks, taskIndex, settings.complexityMode]);
 
-  const focusProject = focusTask ? projects.find((project) => project.id === focusTask.projectId) : undefined;
+  const focusProject = focusTask ? projectMap.get(focusTask.projectId) : undefined;
 
   const showFilterBar = ["dashboard", "high-value", "backlog", "search", "simple-list", "today", "upcoming"].includes(
     activeView,
   );
+
+  const storageWarnings = storageInit?.warnings ?? [];
 
   function handleTaskSubmit(input: TaskInput) {
     createTask(input);
@@ -121,9 +129,10 @@ export function App() {
   }
 
   function handleResetDemoData() {
-    setProjects(demoProjects);
-    setTasks(demoTasks);
-    setHierarchy(demoHierarchy);
+    const payload = getDemoResetPayload();
+    setProjects(payload.projects);
+    setTasks(payload.tasks);
+    setHierarchy(payload.hierarchy);
     resetFilters();
     setSelectedProjectId(null);
     setActiveView("dashboard");
@@ -208,7 +217,7 @@ export function App() {
     }
 
     if (activeView === "project-overview") {
-      return <ProjectOverview project={selectedProject} hierarchy={hierarchy} tasks={tasks} />;
+      return <ProjectOverview project={selectedProject} hierarchy={hierarchy} tasks={tasks} taskIndex={taskIndex} />;
     }
 
     if (activeView === "project-map") {
@@ -216,7 +225,7 @@ export function App() {
         <ProjectMap
           project={selectedProject}
           hierarchy={hierarchy}
-          tasks={tasks}
+          taskIndex={taskIndex}
           collapsedSections={settings.collapsedSections}
           onToggleSection={toggleSectionCollapsed}
           onStatusChange={handleStatusChange}
@@ -231,6 +240,8 @@ export function App() {
         <BacklogPanel
           projects={projects}
           tasks={filteredTasks}
+          taskIndex={taskIndex}
+          projectMap={projectMap}
           viewDensity={settings.viewDensity}
           onStatusChange={handleStatusChange}
           onDelete={deleteTask}
@@ -244,6 +255,7 @@ export function App() {
         <SearchPanel
           projects={projects}
           tasks={filteredTasks}
+          projectMap={projectMap}
           query={filters.searchQuery}
           viewDensity={settings.viewDensity}
           onStatusChange={handleStatusChange}
@@ -258,6 +270,8 @@ export function App() {
         <SimpleListPanel
           projects={projects}
           tasks={filteredTasks}
+          taskIndex={taskIndex}
+          projectMap={projectMap}
           viewDensity={settings.viewDensity}
           onStatusChange={handleStatusChange}
           onDelete={deleteTask}
@@ -292,6 +306,18 @@ export function App() {
         onNewTask={() => setTaskModalOpen(true)}
         onNewProject={() => setProjectModalOpen(true)}
       >
+        {storageInit?.migrated ? (
+          <div className="storage-banner" role="status">
+            Storage schema upgraded to version {storageInit.toVersion}. Your data was validated and preserved.
+          </div>
+        ) : null}
+
+        {storageWarnings.length > 0 ? (
+          <div className="storage-banner storage-banner--warning" role="alert">
+            {storageWarnings.join(" ")}
+          </div>
+        ) : null}
+
         <div className="view-title">
           <p className="eyebrow">
             {getViewEyebrow(activeView, settings.complexityMode)}
@@ -304,7 +330,7 @@ export function App() {
           <TaskFilterBar
             filters={filters}
             projects={projects}
-            tasks={scopedTasks}
+            taskIndex={taskIndex}
             hierarchy={hierarchy}
             viewDensity={settings.viewDensity}
             onFiltersChange={updateFilters}
