@@ -88,6 +88,16 @@ src/
   utils/
 ```
 
+## SaaS Roadmap (Planning)
+
+The app ships as a **local-first** product today. Optional cloud SaaS is documented for future phases:
+
+- [docs/SAAS_ROADMAP.md](docs/SAAS_ROADMAP.md) — product strategy and phased rollout
+- [docs/BACKEND_MIGRATION_PLAN.md](docs/BACKEND_MIGRATION_PLAN.md) — backend options and API plan
+- [docs/DATABASE_SCHEMA_PLAN.md](docs/DATABASE_SCHEMA_PLAN.md) — Postgres schema
+- [docs/AUTH_WORKSPACE_BILLING_PLAN.md](docs/AUTH_WORKSPACE_BILLING_PLAN.md) — auth, workspaces, billing
+- [docs/LOCAL_FIRST_TO_CLOUD_MIGRATION.md](docs/LOCAL_FIRST_TO_CLOUD_MIGRATION.md) — sync and migration
+
 ## Git Workflow
 
 ```bash
