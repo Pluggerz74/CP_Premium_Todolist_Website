@@ -48,11 +48,15 @@ Upload the contents of `dist/` to:
 Home/public_html/todolist
 ```
 
+Production URL: [https://todolist.codingplugs.de/](https://todolist.codingplugs.de/) (subdomain root deployment).
+
 The app is configured with this Vite base path:
 
 ```ts
-base: "/todolist/"
+base: "/"
 ```
+
+See `docs/DEPLOYMENT_HETZNER.md` for subdomain vs subdirectory deployment notes.
 
 ## Cursor Workflow
 

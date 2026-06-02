@@ -2,13 +2,13 @@
   "name": "High Value Todo",
   "short_name": "HV Todo",
   "description": "A premium project command center for high-value tasks.",
-  "start_url": "/todolist/",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
   "icons": [
     {
-      "src": "/todolist/favicon.svg",
+      "src": "/favicon.svg",
       "sizes": "128x128",
       "type": "image/svg+xml"
     }
