@@ -1,0 +1,23 @@
+# High Value Todo — SPA fallback for Hetzner subdirectory deployment
+# Place this file at: Home/public_html/todolist/.htaccess
+# (Vite copies it from public/ into dist/ on build.)
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /todolist/
+
+  # Serve existing files and directories (static assets, index.html, manifest, favicon)
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Client-side route fallback (future-proof; app currently uses in-app view state)
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+# Optional: discourage caching of the HTML shell so asset hash updates propagate
+<IfModule mod_headers.c>
+  <FilesMatch "index\.html$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+  </FilesMatch>
+</IfModule>
