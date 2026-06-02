@@ -3,6 +3,7 @@ import type { Project } from "../../types/project";
 import type { TaskInput, TaskPrioritySignal } from "../../types/task";
 import { getTodayIsoDate } from "../../utils/dates";
 import { useI18n } from "../../i18n/useI18n";
+import { getPrioritySignalOptions } from "../../utils/formatLabels";
 import { Button } from "../../components/ui/Button";
 import { SelectField } from "../../components/ui/SelectField";
 
@@ -16,7 +17,7 @@ type QuickAddFormProps = {
 const priorities: TaskPrioritySignal[] = [1, 2, 3, 4, 5];
 
 export function QuickAddForm({ projects, defaultProjectId, onSubmit, onCancel }: QuickAddFormProps) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const simpleProjects = useMemo(
     () => projects.filter((project) => project.complexityMode === "simple"),
     [projects],
@@ -70,12 +71,7 @@ export function QuickAddForm({ projects, defaultProjectId, onSubmit, onCancel }:
     setTitle("");
   }
 
-  const priorityOptions = priorities.map((value) => ({
-    value: String(value),
-    label: `${value} — ${
-      value >= 4 ? t("priority.high") : value >= 3 ? t("priority.medium") : t("priority.low")
-    }`,
-  }));
+  const priorityOptions = getPrioritySignalOptions(language);
 
   return (
     <form className="form form--quick" onSubmit={handleSubmit}>

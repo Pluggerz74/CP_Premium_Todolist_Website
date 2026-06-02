@@ -20,6 +20,7 @@ type SettingsPanelProps = {
   onResetDemoData?: () => void;
   onLoadScaleTestData?: () => void;
   onImportBackup?: (snapshot: AppDataSnapshot) => void;
+  onManageProjects?: () => void;
 };
 
 export function SettingsPanel({
@@ -31,6 +32,7 @@ export function SettingsPanel({
   onResetDemoData,
   onLoadScaleTestData,
   onImportBackup,
+  onManageProjects,
 }: SettingsPanelProps) {
   const { t } = useI18n();
   const storageMeta = readStorageMeta();
@@ -80,6 +82,18 @@ export function SettingsPanel({
           </Button>
         </div>
       </Card>
+
+      {onManageProjects ? (
+        <Card className="settings-card">
+          <div>
+            <h3>{t("settings.manageProjects")}</h3>
+            <p>{t("settings.manageProjectsHint")}</p>
+          </div>
+          <Button variant="secondary" onClick={onManageProjects}>
+            {settings.complexityMode === "simple" ? t("btn.manageProjects") : t("btn.manageProjectsComplex")}
+          </Button>
+        </Card>
+      ) : null}
 
       <Card className="settings-card">
         <div>

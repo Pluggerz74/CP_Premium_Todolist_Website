@@ -1,3 +1,4 @@
+import { INBOX_PROJECT_ID } from "../../constants/inboxProject";
 import { useMemo, useState } from "react";
 import type { Project } from "../../types/project";
 import type { Task, TaskStatus } from "../../types/task";
@@ -16,14 +17,16 @@ type SimpleBoardPanelProps = {
   projectMap: Map<string, Project>;
   onStatusChange: (taskId: string, status: TaskStatus) => void;
   onEdit?: (taskId: string) => void;
+  onDelete?: (taskId: string) => void;
   onFocus?: (taskId: string) => void;
   onQuickAdd?: () => void;
 };
 
-type BoardSection = "overdue" | "today" | "upcoming" | "later" | "done";
+type BoardSection = "inbox" | "overdue" | "today" | "upcoming" | "later" | "done";
 
 function classifyTask(task: Task): BoardSection {
   if (task.status === "done") return "done";
+  if (task.projectId === INBOX_PROJECT_ID) return "inbox";
   if (isOverdue(task.dueDate)) return "overdue";
   if (isToday(task.dueDate)) return "today";
   if (isUpcoming(task.dueDate)) return "upcoming";
@@ -36,6 +39,7 @@ export function SimpleBoardPanel({
   projectMap,
   onStatusChange,
   onEdit,
+  onDelete,
   onFocus,
   onQuickAdd,
 }: SimpleBoardPanelProps) {
@@ -49,6 +53,7 @@ export function SimpleBoardPanel({
 
   const sections = useMemo(() => {
     const buckets: Record<BoardSection, Task[]> = {
+      inbox: [],
       overdue: [],
       today: [],
       upcoming: [],
@@ -62,7 +67,11 @@ export function SimpleBoardPanel({
   }, [simpleTasks]);
 
   const openCount =
-    sections.overdue.length + sections.today.length + sections.upcoming.length + sections.later.length;
+    sections.inbox.length +
+    sections.overdue.length +
+    sections.today.length +
+    sections.upcoming.length +
+    sections.later.length;
 
   if (openCount === 0 && sections.done.length === 0) {
     return (
@@ -77,6 +86,7 @@ export function SimpleBoardPanel({
   }
 
   const sectionConfig: Array<{ id: BoardSection; title: string; subtitle?: string; tasks: Task[] }> = [
+    { id: "inbox", title: t("section.inbox"), subtitle: t("section.inboxHint"), tasks: sections.inbox },
     { id: "overdue", title: t("section.overdue"), subtitle: t("section.catchUp"), tasks: sections.overdue },
     { id: "today", title: t("section.today"), subtitle: t("section.todayMomentum"), tasks: sections.today },
     { id: "upcoming", title: t("section.upcoming"), tasks: sections.upcoming },
@@ -106,6 +116,7 @@ export function SimpleBoardPanel({
                   project={projectMap.get(task.projectId)}
                   onStatusChange={onStatusChange}
                   onEdit={onEdit}
+                  onDelete={onDelete}
                   onFocus={onFocus}
                 />
               ))}

@@ -12,7 +12,8 @@ import {
 import { validateHierarchySelection } from "../../utils/taskHierarchyEdit";
 import { calculateHighValueScore } from "../../utils/scoring";
 import { useI18n } from "../../i18n/useI18n";
-import { formatTaskTypeLabel } from "../../utils/formatLabels";
+import { formatTaskTypeLabel, getPrioritySignalOptions } from "../../utils/formatLabels";
+import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { Button } from "../../components/ui/Button";
 import { ScorePill } from "../../components/ui/ScorePill";
 
@@ -22,12 +23,13 @@ type TaskEditFormProps = {
   hierarchy: ProjectHierarchyStore;
   onSubmit: (taskId: string, input: Partial<TaskInput>) => void;
   onCancel: () => void;
+  onDelete?: (taskId: string) => void;
 };
 
 const signals: TaskPrioritySignal[] = [1, 2, 3, 4, 5];
 const taskTypes: TaskType[] = ["task", "subtask", "bug", "feature", "research"];
 
-export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: TaskEditFormProps) {
+export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel, onDelete }: TaskEditFormProps) {
   const { t, language } = useI18n();
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description);
@@ -46,6 +48,9 @@ export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: 
   const [effort, setEffort] = useState<TaskPrioritySignal>(task.effort);
   const [tagsInput, setTagsInput] = useState(task.tags.join(", "));
   const [error, setError] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const priorityOptions = getPrioritySignalOptions(language);
 
   const selectedProject = projects.find((project) => project.id === projectId);
   const showHierarchy = selectedProject?.complexityMode === "complex";
@@ -118,6 +123,18 @@ export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: 
         .map((tag) => tag.trim())
         .filter(Boolean),
     });
+  }
+
+  if (confirmDelete && onDelete) {
+    return (
+      <ConfirmDialog
+        title={t("taskDelete.confirmTitle")}
+        message={t("taskDelete.confirmMessage", { title: task.title })}
+        confirmLabel={t("btn.delete")}
+        onConfirm={() => onDelete(task.id)}
+        onCancel={() => setConfirmDelete(false)}
+      />
+    );
   }
 
   return (
@@ -302,10 +319,11 @@ export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: 
             <select
               value={priority}
               onChange={(event) => setPriority(Number(event.target.value) as TaskPrioritySignal)}
+              className="select-field"
             >
-              {signals.map((signal) => (
-                <option key={signal} value={signal}>
-                  {signal}
+              {priorityOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
                 </option>
               ))}
             </select>
@@ -363,6 +381,12 @@ export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: 
       </label>
 
       <div className="form__actions">
+        {onDelete ? (
+          <Button type="button" variant="danger" onClick={() => setConfirmDelete(true)}>
+            {t("btn.delete")}
+          </Button>
+        ) : null}
+        <div className="form__actions-spacer" />
         <Button type="button" variant="secondary" onClick={onCancel}>
           {t("btn.cancel")}
         </Button>

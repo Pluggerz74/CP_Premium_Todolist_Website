@@ -1,8 +1,10 @@
 import type { Project } from "../types/project";
+import { inboxProjectSeed } from "../constants/inboxProject";
 
 const BASE = "2026-06-01T08:00:00.000Z";
 
 export const demoProjects: Project[] = [
+  inboxProjectSeed,
   {
     id: "project-personal",
     name: "Personal Life",

@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AppShell } from "./components/layout/AppShell";
 import { Modal } from "./components/ui/Modal";
 import { Dashboard } from "./features/dashboard/Dashboard";
@@ -13,7 +13,13 @@ import { ProjectOverview } from "./features/projects/ProjectOverview";
 import { ProjectsPanel } from "./features/projects/ProjectsPanel";
 import { SearchPanel } from "./features/projects/SearchPanel";
 import { SimpleBoardPanel } from "./features/projects/SimpleBoardPanel";
+import {
+  ProjectManageModal,
+  type ProjectDeleteStrategy,
+} from "./features/projects/ProjectManageModal";
 import { SettingsPanel } from "./features/settings/SettingsPanel";
+import { ConfirmDialog } from "./components/ui/ConfirmDialog";
+import { INBOX_PROJECT_ID, ensureInboxInProjects } from "./constants/inboxProject";
 import { TaskFilterBar } from "./features/tasks/TaskFilterBar";
 import { SimpleFilterBar } from "./features/tasks/SimpleFilterBar";
 import { getViewEyebrowKey, getViewTitleKey } from "./features/tasks/TaskFilters";
@@ -30,6 +36,7 @@ import { useTaskIndex, useProjectMap } from "./hooks/useTaskIndex";
 import { useTasks } from "./hooks/useTasks";
 import { useTheme } from "./hooks/useTheme";
 import { useViewState } from "./hooks/useViewState";
+import type { AppSettings } from "./types/appSettings";
 import type { ProjectTemplateId } from "./types/template";
 import type { Task } from "./types/task";
 import type { TaskInput, TaskStatus } from "./types/task";
@@ -53,9 +60,19 @@ type AppProps = {
 };
 
 export function App({ storageInit }: AppProps) {
-  const { projects, createProjectWithTemplate, setProjects } = useProjects();
-  const { tasks, createTask, updateTask, updateTaskStatus, deleteTask, setTasks } = useTasks();
-  const { hierarchy, addHierarchy, setHierarchy } = useHierarchy();
+  const { projects, createProjectWithTemplate, setProjects, updateProject, deleteProject } =
+    useProjects();
+  const {
+    tasks,
+    createTask,
+    updateTask,
+    updateTaskStatus,
+    deleteTask,
+    setTasks,
+    deleteTasksForProject,
+    moveTasksToProject,
+  } = useTasks();
+  const { hierarchy, addHierarchy, setHierarchy, removeHierarchyForProject } = useHierarchy();
   const {
     settings,
     filters,
@@ -71,6 +88,9 @@ export function App({ storageInit }: AppProps) {
   const [isTaskModalOpen, setTaskModalOpen] = useState(false);
   const [isQuickAddOpen, setQuickAddOpen] = useState(false);
   const [isProjectModalOpen, setProjectModalOpen] = useState(false);
+  const [isManageModalOpen, setManageModalOpen] = useState(false);
+  const [autoDeleteProjectId, setAutoDeleteProjectId] = useState<string | null>(null);
+  const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [focusTaskId, setFocusTaskId] = useState<string | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -109,7 +129,7 @@ export function App({ storageInit }: AppProps) {
   );
   const showSimpleFilterBar =
     settings.complexityMode === "simple" &&
-    ["simple-list", "today", "upcoming", "dashboard"].includes(activeView);
+    ["today", "upcoming", "dashboard"].includes(activeView);
   const showComplexFilterBar = showFilterBar && !showSimpleFilterBar;
 
   const storageWarnings = storageInit?.warnings ?? [];
@@ -158,7 +178,7 @@ export function App({ storageInit }: AppProps) {
     if (!result.ok) {
       throw new Error(result.error);
     }
-    setProjects(migrateProjects(snapshot.projects));
+    setProjects(ensureInboxInProjects(migrateProjects(snapshot.projects)));
     setTasks(migrateTasks(snapshot.tasks));
     setHierarchy(migrateHierarchy(snapshot.hierarchy));
     resetFilters();
@@ -208,9 +228,71 @@ export function App({ storageInit }: AppProps) {
     setActiveView("backlog");
   }
 
-  function handleSelectProject(projectId: string) {
+  useEffect(() => {
+    if (settings.complexityMode !== "simple") return;
+    if (activeView === "dashboard") {
+      setActiveView("simple-list");
+    }
+  }, [settings.complexityMode, activeView, setActiveView]);
+
+  function handleRenameProject(projectId: string, name: string) {
+    updateProject(projectId, { name });
+  }
+
+  function handleDeleteProject(projectId: string, strategy: ProjectDeleteStrategy) {
+    if (projectId === INBOX_PROJECT_ID) return;
+
+    if (strategy === "move-to-inbox") {
+      moveTasksToProject(projectId, INBOX_PROJECT_ID);
+    } else {
+      deleteTasksForProject(projectId);
+    }
+
+    removeHierarchyForProject(projectId);
+    deleteProject(projectId);
+
+    if (selectedProjectId === projectId) {
+      setSelectedProjectId(null);
+    }
+    if (activeView === "project-overview" || activeView === "project-map") {
+      setActiveView(settings.complexityMode === "simple" ? "simple-list" : "projects");
+    }
+  }
+
+  function handleRequestDeleteProject(projectId: string) {
+    setAutoDeleteProjectId(projectId);
+    setManageModalOpen(true);
+  }
+
+  function handleRequestDeleteTask(taskId: string) {
+    setDeleteTaskId(taskId);
+  }
+
+  function confirmDeleteTask() {
+    if (deleteTaskId) {
+      deleteTask(deleteTaskId);
+      if (editingTask?.id === deleteTaskId) {
+        setEditingTask(null);
+      }
+      if (focusTaskId === deleteTaskId) {
+        setFocusTaskId(null);
+      }
+    }
+    setDeleteTaskId(null);
+  }
+
+  function handleProjectSelect(projectId: string | null) {
     setSelectedProjectId(projectId);
-    setActiveView("project-overview");
+    if (settings.complexityMode === "simple" && projectId) {
+      setActiveView("simple-list");
+    }
+  }
+
+  function handleComplexityModeChange(mode: AppSettings["complexityMode"]) {
+    setComplexityMode(mode);
+    if (mode === "simple") {
+      setActiveView("simple-list");
+    }
   }
 
   function renderContent() {
@@ -287,7 +369,10 @@ export function App({ storageInit }: AppProps) {
           projects={projects}
           tasks={tasks}
           complexityMode={settings.complexityMode}
-          onSelectProject={handleSelectProject}
+          onSelectProject={(projectId) => {
+            setSelectedProjectId(projectId);
+            setActiveView("project-overview");
+          }}
         />
       );
     }
@@ -359,6 +444,7 @@ export function App({ storageInit }: AppProps) {
           projectMap={projectMap}
           onStatusChange={handleStatusChange}
           onEdit={handleEditTask}
+          onDelete={handleRequestDeleteTask}
           onFocus={handleFocus}
           onQuickAdd={() => setQuickAddOpen(true)}
         />
@@ -370,11 +456,12 @@ export function App({ storageInit }: AppProps) {
         theme={theme}
         settings={settings}
         onToggleTheme={toggleTheme}
-        onComplexityModeChange={setComplexityMode}
+        onComplexityModeChange={handleComplexityModeChange}
         onDensityChange={setViewDensity}
         onResetDemoData={handleResetDemoData}
         onLoadScaleTestData={handleLoadScaleTestData}
         onImportBackup={handleImportBackup}
+        onManageProjects={() => setManageModalOpen(true)}
       />
     );
   }
@@ -384,16 +471,20 @@ export function App({ storageInit }: AppProps) {
       <>
       <AppShell
         projects={projects}
+        tasks={tasks}
         activeView={activeView}
         selectedProjectId={selectedProjectId}
         complexityMode={settings.complexityMode}
         searchQuery={filters.searchQuery}
         onViewChange={setActiveView}
-        onProjectSelect={setSelectedProjectId}
+        onProjectSelect={handleProjectSelect}
         onSearchChange={handleSearchChange}
         onNewTask={() => setTaskModalOpen(true)}
         onQuickAdd={() => setQuickAddOpen(true)}
         onNewProject={() => setProjectModalOpen(true)}
+        onManageProjects={() => setManageModalOpen(true)}
+        onRenameProject={handleRenameProject}
+        onRequestDeleteProject={handleRequestDeleteProject}
         searchInputRef={searchInputRef}
       >
         {storageInit?.migrated ? (
@@ -472,12 +563,65 @@ export function App({ storageInit }: AppProps) {
             hierarchy={hierarchy}
             onSubmit={handleTaskEditSubmit}
             onCancel={() => setEditingTask(null)}
+            onDelete={(taskId) => {
+              deleteTask(taskId);
+              setEditingTask(null);
+            }}
           />
         ) : null}
       </Modal>
 
       <Modal title={translate(settings.language, "modal.createProject")} isOpen={isProjectModalOpen} onClose={() => setProjectModalOpen(false)}>
         <ProjectForm onSubmit={handleProjectSubmit} onCancel={() => setProjectModalOpen(false)} />
+      </Modal>
+
+      <Modal
+        title={translate(
+          settings.language,
+          settings.complexityMode === "simple" ? "modal.manageLists" : "modal.manageProjects",
+        )}
+        isOpen={isManageModalOpen}
+        onClose={() => {
+          setManageModalOpen(false);
+          setAutoDeleteProjectId(null);
+        }}
+      >
+        <ProjectManageModal
+          projects={projects}
+          tasks={tasks}
+          complexityMode={settings.complexityMode}
+          selectedProjectId={selectedProjectId}
+          autoDeleteProjectId={autoDeleteProjectId}
+          onAutoDeleteHandled={() => setAutoDeleteProjectId(null)}
+          onCreateProject={() => {
+            setManageModalOpen(false);
+            setProjectModalOpen(true);
+          }}
+          onRenameProject={handleRenameProject}
+          onDeleteProject={handleDeleteProject}
+          onSelectProject={(projectId) => {
+            handleProjectSelect(projectId);
+            setManageModalOpen(false);
+          }}
+        />
+      </Modal>
+
+      <Modal
+        title={translate(settings.language, "modal.deleteTask")}
+        isOpen={deleteTaskId !== null}
+        onClose={() => setDeleteTaskId(null)}
+      >
+        {deleteTaskId ? (
+          <ConfirmDialog
+            title={translate(settings.language, "taskDelete.confirmTitle")}
+            message={translateWithParams(settings.language, "taskDelete.confirmMessage", {
+              title: taskIndex.byId.get(deleteTaskId)?.title ?? "",
+            })}
+            confirmLabel={translate(settings.language, "btn.delete")}
+            onConfirm={confirmDeleteTask}
+            onCancel={() => setDeleteTaskId(null)}
+          />
+        ) : null}
       </Modal>
       </>
     </I18nProvider>

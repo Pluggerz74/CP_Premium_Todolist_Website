@@ -1,5 +1,6 @@
 import type { TaskPrioritySignal } from "../../types/task";
 import { useI18n } from "../../i18n/useI18n";
+import { formatPrioritySignalLabel } from "../../utils/formatLabels";
 import { cn } from "../../utils/cn";
 
 type PriorityBadgeProps = {
@@ -8,17 +9,9 @@ type PriorityBadgeProps = {
 };
 
 export function PriorityBadge({ priority, showLabel = true }: PriorityBadgeProps) {
-  const { t } = useI18n();
-  const label =
-    priority >= 5
-      ? t("priority.critical")
-      : priority >= 4
-        ? t("priority.high")
-        : priority >= 3
-          ? t("priority.medium")
-          : priority >= 2
-            ? t("priority.low")
-            : t("priority.minimal");
+  const { language } = useI18n();
+  const signal = Math.min(5, Math.max(1, Math.round(priority))) as TaskPrioritySignal;
+  const label = formatPrioritySignalLabel(signal, language);
 
   return (
     <span className="priority-badge">

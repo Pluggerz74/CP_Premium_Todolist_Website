@@ -64,5 +64,34 @@ export function useTasks() {
     setTasks((current) => current.filter((task) => task.projectId !== projectId));
   }
 
-  return { tasks, setTasks, createTask, updateTask, updateTaskStatus, deleteTask, deleteTasksForProject };
+  function moveTasksToProject(fromProjectId: string, toProjectId: string) {
+    const now = new Date().toISOString();
+    setTasks((current) =>
+      current.map((task) =>
+        task.projectId === fromProjectId
+          ? {
+              ...task,
+              projectId: toProjectId,
+              areaId: null,
+              phaseId: null,
+              milestoneId: null,
+              epicId: null,
+              taskGroupId: null,
+              updatedAt: now,
+            }
+          : task,
+      ),
+    );
+  }
+
+  return {
+    tasks,
+    setTasks,
+    createTask,
+    updateTask,
+    updateTaskStatus,
+    deleteTask,
+    deleteTasksForProject,
+    moveTasksToProject,
+  };
 }

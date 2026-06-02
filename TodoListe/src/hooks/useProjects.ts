@@ -1,3 +1,4 @@
+import { ensureInboxInProjects, isInboxProject } from "../constants/inboxProject";
 import { storageKeys } from "../constants/storageKeys";
 import { demoProjects } from "../data/demoProjects";
 import type { Project, ProjectInput } from "../types/project";
@@ -7,8 +8,16 @@ import { migrateProjects } from "../utils/migration";
 import { createProjectFromTemplate } from "../utils/templates";
 import { useLocalStorage } from "./useLocalStorage";
 
+function migrateProjectsWithInbox(value: unknown): Project[] {
+  return ensureInboxInProjects(migrateProjects(value));
+}
+
 export function useProjects() {
-  const [projects, setProjects] = useLocalStorage<Project[]>(storageKeys.projects, demoProjects, migrateProjects);
+  const [projects, setProjects] = useLocalStorage<Project[]>(
+    storageKeys.projects,
+    demoProjects,
+    migrateProjectsWithInbox,
+  );
 
   function createProject(input: ProjectInput) {
     const now = new Date().toISOString();
@@ -38,6 +47,9 @@ export function useProjects() {
   }
 
   function updateProject(projectId: string, input: Partial<ProjectInput>) {
+    if (isInboxProject(projectId) && input.name !== undefined) {
+      return;
+    }
     setProjects((current) =>
       current.map((project) =>
         project.id === projectId
@@ -47,5 +59,17 @@ export function useProjects() {
     );
   }
 
-  return { projects, setProjects, createProject, createProjectWithTemplate, updateProject };
+  function deleteProject(projectId: string) {
+    if (isInboxProject(projectId)) return;
+    setProjects((current) => current.filter((project) => project.id !== projectId));
+  }
+
+  return {
+    projects,
+    setProjects,
+    createProject,
+    createProjectWithTemplate,
+    updateProject,
+    deleteProject,
+  };
 }
