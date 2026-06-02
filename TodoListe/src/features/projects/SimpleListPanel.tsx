@@ -6,6 +6,7 @@ import type { TaskIndex } from "../../utils/taskIndex";
 import { getSimpleModeTasksFromIndex } from "../../utils/selectors";
 import { sortByHighValueScore } from "../../utils/scoring";
 import { Button } from "../../components/ui/Button";
+import { useI18n } from "../../i18n/useI18n";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { TaskList } from "../tasks/TaskList";
 import { CompactTaskTable } from "./CompactTaskTable";
@@ -34,6 +35,7 @@ export function SimpleListPanel({
   onEdit,
   onQuickAdd,
 }: SimpleListPanelProps) {
+  const { t } = useI18n();
   const simpleTasks = useMemo(
     () => sortByHighValueScore(getSimpleModeTasksFromIndex(tasks, taskIndex)),
     [tasks, taskIndex],
@@ -46,9 +48,9 @@ export function SimpleListPanel({
       <EmptyState
         variant="subtle"
         icon="≡"
-        title="No simple tasks yet"
-        description="Use Quick Add for a fast personal todo, or create a simple project to get started."
-        action={onQuickAdd ? <Button onClick={onQuickAdd}>Quick Add</Button> : undefined}
+        title={t("simple.noTasks")}
+        description={t("simple.noTasksHint")}
+        action={onQuickAdd ? <Button onClick={onQuickAdd}>{t("btn.quickAdd")}</Button> : undefined}
       />
     );
   }

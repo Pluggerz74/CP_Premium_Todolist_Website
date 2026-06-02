@@ -2,6 +2,7 @@ import type { Project } from "../../types/project";
 import type { Task, TaskStatus } from "../../types/task";
 import { isOverdue, isToday } from "../../utils/dates";
 import { sortByHighValueScore } from "../../utils/scoring";
+import { useI18n } from "../../i18n/useI18n";
 import { Button } from "../../components/ui/Button";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { TaskList } from "../tasks/TaskList";
@@ -25,6 +26,7 @@ export function TodayPanel({
   onEdit,
   onQuickAdd,
 }: TodayPanelProps) {
+  const { t } = useI18n();
   const openTasks = tasks.filter((task) => task.status !== "done");
   const overdueTasks = sortByHighValueScore(openTasks.filter((task) => isOverdue(task.dueDate)));
   const todayTasks = sortByHighValueScore(openTasks.filter((task) => isToday(task.dueDate)));
@@ -34,13 +36,9 @@ export function TodayPanel({
       <EmptyState
         variant="subtle"
         icon="◷"
-        title="Nothing due today"
-        description="You're clear for today. Add a quick task or plan something in Upcoming."
-        action={
-          onQuickAdd ? (
-            <Button onClick={onQuickAdd}>Quick Add</Button>
-          ) : undefined
-        }
+        title={t("today.empty")}
+        description={t("today.emptyHint")}
+        action={onQuickAdd ? <Button onClick={onQuickAdd}>{t("btn.quickAdd")}</Button> : undefined}
       />
     );
   }
@@ -50,8 +48,8 @@ export function TodayPanel({
       {overdueTasks.length > 0 ? (
         <section className="section-block today-view__section today-view__section--overdue">
           <div className="section-heading">
-            <p className="eyebrow">Overdue</p>
-            <h2>Catch up first</h2>
+            <p className="eyebrow">{t("section.overdue")}</p>
+            <h2>{t("section.catchUp")}</h2>
           </div>
           <TaskList
             tasks={overdueTasks}
@@ -66,11 +64,11 @@ export function TodayPanel({
 
       <section className="section-block today-view__section today-view__section--today">
         <div className="section-heading">
-          <p className="eyebrow">Today</p>
-          <h2>Tasks that need momentum now</h2>
+          <p className="eyebrow">{t("section.today")}</p>
+          <h2>{t("section.todayTasks")}</h2>
         </div>
         {todayTasks.length === 0 ? (
-          <p className="today-view__empty-note">No tasks scheduled for today — focus on overdue items above.</p>
+          <p className="today-view__empty-note">{t("today.noScheduled")}</p>
         ) : (
           <TaskList
             tasks={todayTasks}

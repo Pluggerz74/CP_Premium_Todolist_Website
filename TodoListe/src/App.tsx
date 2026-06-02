@@ -22,7 +22,7 @@ import { TaskEditForm } from "./features/tasks/TaskEditForm";
 import { QuickAddForm } from "./features/tasks/QuickAddForm";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { I18nProvider } from "./i18n/I18nProvider";
-import { translate } from "./i18n/translations";
+import { translate, translateWithParams } from "./i18n/translations";
 import { useAppSettings } from "./hooks/useAppSettings";
 import { useHierarchy } from "./hooks/useHierarchy";
 import { useProjects } from "./hooks/useProjects";
@@ -398,7 +398,7 @@ export function App({ storageInit }: AppProps) {
       >
         {storageInit?.migrated ? (
           <div className="storage-banner" role="status">
-            Storage schema upgraded to version {storageInit.toVersion}. Your data was validated and preserved.
+            {translateWithParams(settings.language, "storage.migrated", { version: storageInit.toVersion })}
           </div>
         ) : null}
 

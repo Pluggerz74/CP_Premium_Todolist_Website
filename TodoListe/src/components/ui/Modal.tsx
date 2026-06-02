@@ -1,4 +1,5 @@
 import type { PropsWithChildren } from "react";
+import { useI18n } from "../../i18n/useI18n";
 import { Button } from "./Button";
 
 type ModalProps = PropsWithChildren<{
@@ -8,6 +9,8 @@ type ModalProps = PropsWithChildren<{
 }>;
 
 export function Modal({ title, isOpen, onClose, children }: ModalProps) {
+  const { t } = useI18n();
+
   if (!isOpen) return null;
 
   return (
@@ -21,7 +24,7 @@ export function Modal({ title, isOpen, onClose, children }: ModalProps) {
       >
         <header className="modal__header">
           <h2 id="modal-title">{title}</h2>
-          <Button variant="ghost" onClick={onClose} aria-label="Close modal">
+          <Button variant="ghost" onClick={onClose} aria-label={t("modal.close")}>
             ×
           </Button>
         </header>

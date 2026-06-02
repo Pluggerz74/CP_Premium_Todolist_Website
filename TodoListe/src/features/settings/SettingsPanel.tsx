@@ -141,12 +141,12 @@ export function SettingsPanel({
       {import.meta.env.DEV && onLoadScaleTestData ? (
         <Card className="settings-card settings-card--dev">
           <div>
-            <h3>Development scale test</h3>
-            <p>Load ~1,200 generated tasks for stress-testing. Use {t("btn.reloadDemo")} to restore.</p>
+            <h3>{t("settings.scaleTestTitle")}</h3>
+            <p>{t("settings.scaleTestHint", { reload: t("btn.reloadDemo") })}</p>
           </div>
           <div className="settings-card__actions">
             <Button variant="secondary" onClick={onLoadScaleTestData}>
-              Load scale test data
+              {t("btn.loadScaleTest")}
             </Button>
           </div>
         </Card>

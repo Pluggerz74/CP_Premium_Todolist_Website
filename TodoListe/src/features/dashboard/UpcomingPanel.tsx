@@ -2,6 +2,7 @@ import type { Project } from "../../types/project";
 import type { Task, TaskStatus } from "../../types/task";
 import { isUpcoming } from "../../utils/dates";
 import { sortByHighValueScore } from "../../utils/scoring";
+import { useI18n } from "../../i18n/useI18n";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { TaskList } from "../tasks/TaskList";
 
@@ -22,26 +23,22 @@ export function UpcomingPanel({
   onFocus,
   onEdit,
 }: UpcomingPanelProps) {
+  const { t } = useI18n();
   const upcomingTasks = sortByHighValueScore(
     tasks.filter((task) => task.status !== "done" && isUpcoming(task.dueDate)),
   );
 
   if (upcomingTasks.length === 0) {
     return (
-      <EmptyState
-        variant="subtle"
-        icon="→"
-        title="No upcoming deadlines"
-        description="Future-dated open tasks will appear here so you can plan ahead without losing focus."
-      />
+      <EmptyState variant="subtle" icon="→" title={t("upcoming.empty")} description={t("upcoming.emptyHint")} />
     );
   }
 
   return (
     <section className="section-block upcoming-view">
       <div className="section-heading">
-        <p className="eyebrow">Upcoming</p>
-        <h2>Plan ahead without losing focus</h2>
+        <p className="eyebrow">{t("section.upcoming")}</p>
+        <h2>{t("view.upcoming")}</h2>
       </div>
       <TaskList
         tasks={upcomingTasks}

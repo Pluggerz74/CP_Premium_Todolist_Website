@@ -4,6 +4,7 @@ import type { Project } from "../../types/project";
 import type { Task, TaskStatus } from "../../types/task";
 import { buildProjectTree, type HierarchyTreeNode } from "../../utils/hierarchy";
 import type { TaskIndex } from "../../utils/taskIndex";
+import { useI18n } from "../../i18n/useI18n";
 import { CollapsibleSection } from "../../components/ui/CollapsibleSection";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { CompactTaskTable } from "./CompactTaskTable";
@@ -42,6 +43,7 @@ const TreeNodeSection = memo(function TreeNodeSection({
   onDelete,
   onFocus,
 }: TreeNodeSectionProps) {
+  const { t } = useI18n();
   const collapsed = collapsedSections[node.id] ?? level > 1;
   const nodeTask = node.type === "task" ? taskIndex.byId.get(node.id) : undefined;
   const projects = useMemo(() => [...projectMap.values()], [projectMap]);
@@ -51,7 +53,7 @@ const TreeNodeSection = memo(function TreeNodeSection({
       id={node.id}
       title={node.label}
       subtitle={node.description}
-      meta={`${node.openTaskCount}/${node.taskCount} open`}
+      meta={t("projectMap.nodeOpen", { open: node.openTaskCount, total: node.taskCount })}
       collapsed={collapsed}
       onToggle={() => onToggleSection(node.id)}
       level={level}
@@ -96,6 +98,7 @@ export function ProjectMap({
   onDelete,
   onFocus,
 }: ProjectMapProps) {
+  const { t } = useI18n();
   const projectMap = useMemo(
     () => (project ? new Map([[project.id, project]]) : new Map<string, Project>()),
     [project],
@@ -109,8 +112,8 @@ export function ProjectMap({
   if (!project) {
     return (
       <EmptyState
-        title="Select a complex project"
-        description="Project map shows hierarchical areas, milestones, epics, and tasks for large projects."
+        title={t("projectMap.selectComplexTitle")}
+        description={t("projectMap.selectComplexHint")}
       />
     );
   }
@@ -118,8 +121,8 @@ export function ProjectMap({
   if (project.complexityMode !== "complex") {
     return (
       <EmptyState
-        title="Simple project selected"
-        description="Switch to a complex project like Echo Realms to explore the full hierarchy map."
+        title={t("projectMap.simpleSelectedTitle")}
+        description={t("projectMap.simpleSelectedHint")}
       />
     );
   }
@@ -127,17 +130,15 @@ export function ProjectMap({
   if (tree.length === 0) {
     return (
       <EmptyState
-        title="No hierarchy yet"
-        description="Create a project from a template to generate areas, milestones, and planning lanes."
+        title={t("projectMap.noHierarchyTitle")}
+        description={t("projectMap.noHierarchyHint")}
       />
     );
   }
 
   return (
     <div className="project-map">
-      <p className="project-map__intro">
-        Progressive disclosure keeps massive projects manageable. Expand areas to drill into phases, milestones, epics, and tasks.
-      </p>
+      <p className="project-map__intro">{t("projectMap.intro")}</p>
       <div className="project-map__tree">
         {tree.map((node) => (
           <TreeNodeSection

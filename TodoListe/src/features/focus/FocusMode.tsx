@@ -47,10 +47,12 @@ export function FocusMode({ task, project, hierarchy, onStatusChange, onEdit }: 
         {breadcrumbs.length > 0 ? <Breadcrumbs items={breadcrumbs} /> : null}
         <h2>{task.title}</h2>
         <p>{task.description}</p>
-        {project ? <span className="focus-card__project">Project: {project.name}</span> : null}
+        {project ? (
+          <span className="focus-card__project">{t("focus.projectWithName", { name: project.name })}</span>
+        ) : null}
         {task.acceptanceCriteria ? (
           <div className="focus-card__criteria">
-            <strong>Acceptance criteria</strong>
+            <strong>{t("focus.acceptanceCriteria")}</strong>
             <p>{task.acceptanceCriteria}</p>
           </div>
         ) : null}

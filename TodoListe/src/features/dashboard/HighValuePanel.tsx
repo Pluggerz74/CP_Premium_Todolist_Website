@@ -2,6 +2,7 @@ import type { Project } from "../../types/project";
 import type { Task, TaskStatus } from "../../types/task";
 import { formatDateLabel } from "../../utils/dates";
 import { sortByHighValueScore } from "../../utils/scoring";
+import { useI18n } from "../../i18n/useI18n";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { RankedListItem } from "../../components/ui/RankedListItem";
 import { TaskMetadata } from "../../components/ui/TaskMetadata";
@@ -17,21 +18,17 @@ type HighValuePanelProps = {
 };
 
 export function HighValuePanel({ projects, tasks, onStatusChange, onDelete, onFocus, onEdit }: HighValuePanelProps) {
+  const { t } = useI18n();
   const rankedTasks = sortByHighValueScore(tasks.filter((task) => task.status !== "done"));
 
   return (
     <section className="section-block">
       <div className="section-heading">
-        <p className="eyebrow">High-value score</p>
-        <h2>Ranked by impact + urgency - effort</h2>
+        <p className="eyebrow">{t("highValue.eyebrow")}</p>
+        <h2>{t("highValue.title")}</h2>
       </div>
       {rankedTasks.length === 0 ? (
-        <EmptyState
-          variant="subtle"
-          icon="★"
-          title="No ranked tasks"
-          description="Open tasks with impact and urgency will appear here, sorted by high-value score."
-        />
+        <EmptyState variant="subtle" icon="★" title={t("highValue.emptyTitle")} description={t("highValue.emptyHint")} />
       ) : rankedTasks.length <= 12 ? (
         <div className="ranked-list">
           {rankedTasks.map((task, index) => {
@@ -47,7 +44,8 @@ export function HighValuePanel({ projects, tasks, onStatusChange, onDelete, onFo
                 <div className="ranked-list__meta">
                   <TaskMetadata task={task} variant="inline" showDueDate={false} />
                   <span className="task-metadata__due">
-                    {project?.name ?? "Project"} · Due {formatDateLabel(task.dueDate)}
+                    {project?.name ?? t("label.project")} · {t("highValue.duePrefix")}{" "}
+                    {formatDateLabel(task.dueDate)}
                   </span>
                 </div>
               </RankedListItem>

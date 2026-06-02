@@ -4,6 +4,7 @@ import type { ProjectHierarchyStore } from "../../types/hierarchy";
 import type { TaskInput, TaskPrioritySignal, TaskStatus, TaskType } from "../../types/task";
 import { getTodayIsoDate } from "../../utils/dates";
 import { getProjectAreas } from "../../utils/hierarchy";
+import { useI18n } from "../../i18n/useI18n";
 import { Button } from "../../components/ui/Button";
 
 type TaskFormProps = {
@@ -18,6 +19,7 @@ const signals: TaskPrioritySignal[] = [1, 2, 3, 4, 5];
 const taskTypes: TaskType[] = ["task", "subtask", "bug", "feature", "research"];
 
 export function TaskForm({ projects, hierarchy, defaultProjectId, onSubmit, onCancel }: TaskFormProps) {
+  const { t } = useI18n();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [projectId, setProjectId] = useState(defaultProjectId ?? projects[0]?.id ?? "");
@@ -83,15 +85,15 @@ export function TaskForm({ projects, hierarchy, defaultProjectId, onSubmit, onCa
   return (
     <form className="form" onSubmit={handleSubmit}>
       <label>
-        Task title
+        {t("form.taskTitle")}
         <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Ship the dashboard" />
       </label>
       <label>
-        Description
+        {t("label.description")}
         <textarea value={description} onChange={(event) => setDescription(event.target.value)} placeholder="What needs to happen?" />
       </label>
       <label>
-        Project
+        {t("label.project")}
         <select
           value={projectId}
           onChange={(event) => {
@@ -108,9 +110,9 @@ export function TaskForm({ projects, hierarchy, defaultProjectId, onSubmit, onCa
       </label>
       {showHierarchy ? (
         <label>
-          Area
+          {t("label.area")}
           <select value={areaId} onChange={(event) => setAreaId(event.target.value)}>
-            <option value="">Select area (optional)</option>
+            <option value="">{t("form.selectAreaOptional")}</option>
             {areas.map((area) => (
               <option key={area.id} value={area.id}>
                 {area.title}
@@ -121,15 +123,15 @@ export function TaskForm({ projects, hierarchy, defaultProjectId, onSubmit, onCa
       ) : null}
       <div className="form__grid">
         <label>
-          Status
+          {t("label.status")}
           <select value={status} onChange={(event) => setStatus(event.target.value as TaskStatus)}>
-            <option value="todo">Todo</option>
-            <option value="in-progress">In progress</option>
-            <option value="done">Done</option>
+            <option value="todo">{t("status.todo")}</option>
+            <option value="in-progress">{t("status.inProgress")}</option>
+            <option value="done">{t("status.done")}</option>
           </select>
         </label>
         <label>
-          Type
+          {t("label.type")}
           <select value={type} onChange={(event) => setType(event.target.value as TaskType)}>
             {taskTypes.map((option) => (
               <option key={option} value={option}>
@@ -141,11 +143,11 @@ export function TaskForm({ projects, hierarchy, defaultProjectId, onSubmit, onCa
       </div>
       <div className="form__grid">
         <label>
-          Due date
+          {t("label.dueDate")}
           <input type="date" value={dueDate} onChange={(event) => setDueDate(event.target.value)} />
         </label>
         <label>
-          Tags
+          {t("label.tags")}
           <input
             value={tagsInput}
             onChange={(event) => setTagsInput(event.target.value)}
@@ -155,7 +157,7 @@ export function TaskForm({ projects, hierarchy, defaultProjectId, onSubmit, onCa
       </div>
       <div className="form__grid form__grid--three">
         <label>
-          Impact
+          {t("label.impact")}
           <select value={impact} onChange={(event) => setImpact(Number(event.target.value) as TaskPrioritySignal)}>
             {signals.map((signal) => (
               <option key={signal} value={signal}>
@@ -165,7 +167,7 @@ export function TaskForm({ projects, hierarchy, defaultProjectId, onSubmit, onCa
           </select>
         </label>
         <label>
-          Urgency
+          {t("label.urgency")}
           <select value={urgency} onChange={(event) => setUrgency(Number(event.target.value) as TaskPrioritySignal)}>
             {signals.map((signal) => (
               <option key={signal} value={signal}>
@@ -175,7 +177,7 @@ export function TaskForm({ projects, hierarchy, defaultProjectId, onSubmit, onCa
           </select>
         </label>
         <label>
-          Effort
+          {t("label.effort")}
           <select value={effort} onChange={(event) => setEffort(Number(event.target.value) as TaskPrioritySignal)}>
             {signals.map((signal) => (
               <option key={signal} value={signal}>
@@ -187,9 +189,9 @@ export function TaskForm({ projects, hierarchy, defaultProjectId, onSubmit, onCa
       </div>
       <div className="form__actions">
         <Button type="button" variant="secondary" onClick={onCancel}>
-          Cancel
+          {t("btn.cancel")}
         </Button>
-        <Button type="submit">Create Task</Button>
+        <Button type="submit">{t("form.createTask")}</Button>
       </div>
     </form>
   );

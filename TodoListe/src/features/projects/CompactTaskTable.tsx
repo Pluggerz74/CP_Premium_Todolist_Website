@@ -92,26 +92,27 @@ export function CompactTaskTable({
   onFocus,
   onEdit,
 }: CompactTaskTableProps) {
+  const { t } = useI18n();
   const resolvedProjectMap = useMemo(() => {
     if (projectMap) return projectMap;
     return new Map(projects.map((project) => [project.id, project]));
   }, [projectMap, projects]);
 
   if (tasks.length === 0) {
-    return <EmptyState title="No tasks" description="This section has no tasks yet." />;
+    return <EmptyState title={t("compactTable.emptyTitle")} description={t("compactTable.emptyHint")} />;
   }
 
   const useVirtual = tasks.length >= VIRTUAL_LIST_THRESHOLD;
 
   return (
-    <div className="compact-table" role="table" aria-label="Tasks">
+    <div className="compact-table" role="table" aria-label={t("taskList.ariaLabel")}>
       <div className="compact-table__head" role="row">
-        <span role="columnheader">Task</span>
-        <span role="columnheader">Project</span>
-        <span role="columnheader">Status</span>
-        <span role="columnheader">Score</span>
-        <span role="columnheader">Due</span>
-        <span role="columnheader">Actions</span>
+        <span role="columnheader">{t("compactTable.colTask")}</span>
+        <span role="columnheader">{t("compactTable.colProject")}</span>
+        <span role="columnheader">{t("compactTable.colStatus")}</span>
+        <span role="columnheader">{t("compactTable.colScore")}</span>
+        <span role="columnheader">{t("compactTable.colDue")}</span>
+        <span role="columnheader">{t("compactTable.colActions")}</span>
       </div>
       {useVirtual ? (
         <VirtualList

@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 import { projectTemplates } from "../../data/templates";
 import type { ProjectTemplateId } from "../../types/template";
+import { useI18n } from "../../i18n/useI18n";
 import { Button } from "../../components/ui/Button";
 
 type ProjectFormProps = {
@@ -14,6 +15,7 @@ type ProjectFormProps = {
 };
 
 export function ProjectForm({ onSubmit, onCancel }: ProjectFormProps) {
+  const { t } = useI18n();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [goal, setGoal] = useState("");
@@ -36,11 +38,11 @@ export function ProjectForm({ onSubmit, onCancel }: ProjectFormProps) {
   return (
     <form className="form" onSubmit={handleSubmit}>
       <label>
-        Project name
+        {t("form.projectName")}
         <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Echo Realms" />
       </label>
       <label>
-        Template
+        {t("form.template")}
         <select value={templateId} onChange={(event) => setTemplateId(event.target.value as ProjectTemplateId)}>
           {projectTemplates.map((template) => (
             <option key={template.id} value={template.id}>
@@ -51,11 +53,15 @@ export function ProjectForm({ onSubmit, onCancel }: ProjectFormProps) {
       </label>
       {selectedTemplate ? (
         <p className="form__hint">
-          {selectedTemplate.description} — {selectedTemplate.complexityMode === "complex" ? "includes planning areas" : "flat task workflow"}.
+          {selectedTemplate.description} —{" "}
+          {selectedTemplate.complexityMode === "complex"
+            ? t("projectForm.templateHintComplex")
+            : t("projectForm.templateHintSimple")}
+          .
         </p>
       ) : null}
       <label>
-        Description
+        {t("label.description")}
         <textarea
           value={description}
           onChange={(event) => setDescription(event.target.value)}
@@ -63,14 +69,14 @@ export function ProjectForm({ onSubmit, onCancel }: ProjectFormProps) {
         />
       </label>
       <label>
-        Goal
+        {t("form.goal")}
         <input value={goal} onChange={(event) => setGoal(event.target.value)} placeholder="What does success look like?" />
       </label>
       <div className="form__actions">
         <Button type="button" variant="secondary" onClick={onCancel}>
-          Cancel
+          {t("btn.cancel")}
         </Button>
-        <Button type="submit">Create Project</Button>
+        <Button type="submit">{t("form.createProject")}</Button>
       </div>
     </form>
   );

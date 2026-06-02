@@ -62,7 +62,7 @@ export function TaskMetadata({
       <PriorityBadge priority={task.priority} />
       {showDueDate ? (
         <span className={cn("task-metadata__due", dueClass)}>
-          {dueTone === "overdue" ? "Overdue" : dueTone === "today" ? "Today" : "Due"}{" "}
+          {dueTone === "overdue" ? t("due.overdue") : dueTone === "today" ? t("due.today") : t("due.due")}{" "}
           {formatDateLabel(task.dueDate)}
         </span>
       ) : null}

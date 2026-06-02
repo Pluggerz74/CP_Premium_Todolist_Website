@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import type { Project } from "../../types/project";
 import type { Task, TaskStatus } from "../../types/task";
 import { VIRTUAL_LIST_THRESHOLD } from "../../utils/taskIndex";
+import { useI18n } from "../../i18n/useI18n";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { VirtualList } from "../../components/ui/VirtualList";
 import { TaskCard } from "./TaskCard";
@@ -27,6 +28,7 @@ export function TaskList({
   onFocus,
   onEdit,
 }: TaskListProps) {
+  const { t } = useI18n();
   const resolvedProjectMap = useMemo(() => {
     if (projectMap) return projectMap;
     return new Map(projects.map((project) => [project.id, project]));
@@ -34,10 +36,7 @@ export function TaskList({
 
   if (tasks.length === 0) {
     return (
-      <EmptyState
-        title="No tasks in this view"
-        description="Create a task or switch projects to see your next high-value actions."
-      />
+      <EmptyState title={t("taskList.emptyTitle")} description={t("taskList.emptyHint")} />
     );
   }
 
@@ -49,7 +48,7 @@ export function TaskList({
           itemHeight={COMFORTABLE_ROW_HEIGHT}
           maxHeight={720}
           className="task-list__virtual"
-          ariaLabel="Task list"
+          ariaLabel={t("taskList.ariaLabel")}
           getItemKey={(task) => task.id}
           renderItem={(task) => (
             <TaskCard

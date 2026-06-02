@@ -11,6 +11,7 @@ import { RankedListItem } from "../../components/ui/RankedListItem";
 import { StatCard } from "../../components/ui/StatCard";
 import { TaskMetadata } from "../../components/ui/TaskMetadata";
 import { ModeBadge } from "../../components/ui/ModeBadge";
+import { useI18n } from "../../i18n/useI18n";
 import { Card } from "../../components/ui/Card";
 
 type ProjectOverviewProps = {
@@ -22,6 +23,7 @@ type ProjectOverviewProps = {
 };
 
 export function ProjectOverview({ project, hierarchy, taskIndex, onFocus }: ProjectOverviewProps) {
+  const { t } = useI18n();
   const projectTasks = useMemo(
     () => (project ? taskIndex.byProjectId.get(project.id) ?? [] : []),
     [project, taskIndex],
@@ -42,8 +44,8 @@ export function ProjectOverview({ project, hierarchy, taskIndex, onFocus }: Proj
   if (!project) {
     return (
       <EmptyState
-        title="Select a project"
-        description="Choose a project from the sidebar to inspect its overview, areas, and progress."
+        title={t("projectOverview.selectTitle")}
+        description={t("projectOverview.selectHint")}
       />
     );
   }
@@ -63,7 +65,12 @@ export function ProjectOverview({ project, hierarchy, taskIndex, onFocus }: Proj
         </div>
         <p className="project-card__goal">{project.goal}</p>
         <div className="progress__meta">
-          <span>{progress.completed}/{progress.total} tasks complete</span>
+          <span>
+            {t("projectOverview.tasksComplete", {
+              completed: progress.completed,
+              total: progress.total,
+            })}
+          </span>
           <span>{progress.percent}%</span>
         </div>
         <div className="progress__track">
@@ -72,16 +79,28 @@ export function ProjectOverview({ project, hierarchy, taskIndex, onFocus }: Proj
       </Card>
 
       <section className="stats-grid stats-grid--three">
-        <StatCard label="Open tasks" value={openTasks.length} helper="Remaining execution items" />
-        <StatCard label="Areas" value={areas.length} helper="Production lanes" />
-        <StatCard label="Top score" value={topTasks[0]?.highValueScore ?? 0} helper="Highest open leverage" />
+        <StatCard
+          label={t("projectOverview.stat.openTasks")}
+          value={openTasks.length}
+          helper={t("projectOverview.stat.openTasksHelper")}
+        />
+        <StatCard
+          label={t("projectOverview.stat.areas")}
+          value={areas.length}
+          helper={t("projectOverview.stat.areasHelper")}
+        />
+        <StatCard
+          label={t("projectOverview.stat.topScore")}
+          value={topTasks[0]?.highValueScore ?? 0}
+          helper={t("projectOverview.stat.topScoreHelper")}
+        />
       </section>
 
       {project.complexityMode === "complex" ? (
         <section className="section-block">
           <div className="section-heading">
-            <p className="eyebrow">Structure</p>
-            <h2>Project areas</h2>
+            <p className="eyebrow">{t("projectOverview.structure")}</p>
+            <h2>{t("projectOverview.areasTitle")}</h2>
           </div>
           <div className="area-grid">
             {areas.map((area) => {
@@ -92,8 +111,8 @@ export function ProjectOverview({ project, hierarchy, taskIndex, onFocus }: Proj
                   <h3>{area.title}</h3>
                   <p>{area.description}</p>
                   <div className="area-card__meta">
-                    <span>{areaOpen} open</span>
-                    <span>{stats.percent}% done</span>
+                    <span>{t("projectOverview.openCount", { count: areaOpen })}</span>
+                    <span>{t("projectOverview.percentDone", { percent: stats.percent })}</span>
                   </div>
                   <div className="area-card__progress">
                     <div className="progress__track">
@@ -109,11 +128,14 @@ export function ProjectOverview({ project, hierarchy, taskIndex, onFocus }: Proj
 
       <section className="section-block">
         <div className="section-heading">
-          <p className="eyebrow">Next actions</p>
-          <h2>Highest-value tasks in this project</h2>
+          <p className="eyebrow">{t("projectOverview.nextActions")}</p>
+          <h2>{t("projectOverview.rankedTitle")}</h2>
         </div>
         {topTasks.length === 0 ? (
-          <EmptyState title="No open tasks" description="Add tasks to this project to see ranked next actions." />
+          <EmptyState
+            title={t("projectOverview.noOpenTasks")}
+            description={t("projectOverview.noOpenTasksHint")}
+          />
         ) : (
           <div className="ranked-list">
             {topTasks.map((task, index) => (

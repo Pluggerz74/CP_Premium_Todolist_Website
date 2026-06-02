@@ -1,6 +1,7 @@
 import type { Project } from "../../types/project";
 import type { Task, TaskStatus } from "../../types/task";
 import type { ViewDensity } from "../../types/appSettings";
+import { useI18n } from "../../i18n/useI18n";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { TaskList } from "../tasks/TaskList";
 import { CompactTaskTable } from "./CompactTaskTable";
@@ -28,11 +29,13 @@ export function SearchPanel({
   onFocus,
   onEdit,
 }: SearchPanelProps) {
+  const { t } = useI18n();
+
   if (!query.trim()) {
     return (
       <EmptyState
-        title="Search your workspace"
-        description="Use the search field above to find tasks by title, description, tags, or notes across all projects."
+        title={t("search.emptyTitle")}
+        description={t("search.emptyHint")}
       />
     );
   }
@@ -40,8 +43,8 @@ export function SearchPanel({
   if (tasks.length === 0) {
     return (
       <EmptyState
-        title="No matching tasks"
-        description={`Nothing matched "${query}". Try a different keyword or reset your filters.`}
+        title={t("search.noMatchTitle")}
+        description={t("search.noMatchHint", { query })}
       />
     );
   }

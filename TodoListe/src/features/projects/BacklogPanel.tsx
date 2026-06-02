@@ -4,6 +4,7 @@ import type { Task, TaskStatus } from "../../types/task";
 import type { ViewDensity } from "../../types/appSettings";
 import type { TaskIndex } from "../../utils/taskIndex";
 import { sortByHighValueScore } from "../../utils/scoring";
+import { useI18n } from "../../i18n/useI18n";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { TaskList } from "../tasks/TaskList";
 import { CompactTaskTable } from "./CompactTaskTable";
@@ -30,6 +31,7 @@ export function BacklogPanel({
   onFocus,
   onEdit,
 }: BacklogPanelProps) {
+  const { t } = useI18n();
   const backlogTasks = useMemo(
     () =>
       sortByHighValueScore(
@@ -41,8 +43,8 @@ export function BacklogPanel({
   if (backlogTasks.length === 0) {
     return (
       <EmptyState
-        title="Backlog is clear"
-        description="Complex project tasks that are not done will appear here, ranked by high-value score."
+        title={t("backlog.emptyTitle")}
+        description={t("backlog.emptyHint")}
       />
     );
   }

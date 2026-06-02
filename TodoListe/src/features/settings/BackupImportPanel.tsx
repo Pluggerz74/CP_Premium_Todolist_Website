@@ -1,4 +1,6 @@
 import { useRef, useState } from "react";
+import { useI18n } from "../../i18n/useI18n";
+import { translateBackupError } from "../../i18n/helpers";
 import { Button } from "../../components/ui/Button";
 import { downloadAppBackup, parseBackupFile, type AppDataSnapshot } from "../../utils/dataBackup";
 
@@ -9,6 +11,7 @@ type BackupImportPanelProps = {
 type ImportStep = "idle" | "preview" | "confirm" | "success" | "error";
 
 export function BackupImportPanel({ onImport }: BackupImportPanelProps) {
+  const { t, language } = useI18n();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState<ImportStep>("idle");
   const [pendingSnapshot, setPendingSnapshot] = useState<AppDataSnapshot | null>(null);
@@ -31,19 +34,23 @@ export function BackupImportPanel({ onImport }: BackupImportPanelProps) {
       const result = parseBackupFile(content);
       if (!result.ok) {
         setStep("error");
-        setMessage(result.error);
+        setMessage(translateBackupError(language, result.error));
         setPendingSnapshot(null);
         return;
       }
       setPendingSnapshot(result.snapshot);
       setStep("preview");
       setMessage(
-        `Found ${result.snapshot.projects.length} projects and ${result.snapshot.tasks.length} tasks (exported ${new Date(result.snapshot.exportedAt).toLocaleString()}).`,
+        t("backup.previewFound", {
+          projects: result.snapshot.projects.length,
+          tasks: result.snapshot.tasks.length,
+          date: new Date(result.snapshot.exportedAt).toLocaleString(),
+        }),
       );
     };
     reader.onerror = () => {
       setStep("error");
-      setMessage("Could not read the selected file.");
+      setMessage(t("backup.error.readFailed"));
     };
     reader.readAsText(file);
   }
@@ -53,12 +60,12 @@ export function BackupImportPanel({ onImport }: BackupImportPanelProps) {
     try {
       onImport(pendingSnapshot);
       setStep("success");
-      setMessage("Backup imported. Your workspace has been refreshed with the imported data.");
+      setMessage(t("backup.success"));
       setPendingSnapshot(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch {
       setStep("error");
-      setMessage("Import failed. Your previous data was not changed.");
+      setMessage(t("backup.error.importFailed"));
     }
   }
 
@@ -66,10 +73,10 @@ export function BackupImportPanel({ onImport }: BackupImportPanelProps) {
     <div className="backup-import">
       <div className="settings-card__actions">
         <Button variant="secondary" onClick={downloadAppBackup}>
-          Download backup
+          {t("btn.downloadBackup")}
         </Button>
         <Button variant="secondary" onClick={() => fileInputRef.current?.click()}>
-          Import backup
+          {t("btn.importBackup")}
         </Button>
         <input
           ref={fileInputRef}
@@ -85,16 +92,13 @@ export function BackupImportPanel({ onImport }: BackupImportPanelProps) {
       {step === "preview" && pendingSnapshot ? (
         <div className="backup-import__panel" role="status">
           <p>{message}</p>
-          <p className="backup-import__warning">
-            Importing will replace all projects, tasks, and hierarchy stored on this device. Download a backup first if
-            you want to keep your current data.
-          </p>
+          <p className="backup-import__warning">{t("backup.previewWarning")}</p>
           <div className="backup-import__actions">
             <Button variant="secondary" onClick={resetFlow}>
-              Cancel
+              {t("btn.cancel")}
             </Button>
             <Button variant="primary" onClick={() => setStep("confirm")}>
-              Continue
+              {t("btn.continue")}
             </Button>
           </div>
         </div>
@@ -103,14 +107,14 @@ export function BackupImportPanel({ onImport }: BackupImportPanelProps) {
       {step === "confirm" && pendingSnapshot ? (
         <div className="backup-import__panel backup-import__panel--danger" role="alert">
           <p>
-            <strong>Replace local data?</strong> This cannot be undone without another backup file.
+            <strong>{t("confirm.importReplace")}</strong> {t("confirm.importReplaceHint")}
           </p>
           <div className="backup-import__actions">
             <Button variant="secondary" onClick={() => setStep("preview")}>
-              Go back
+              {t("btn.goBack")}
             </Button>
             <Button variant="danger" onClick={handleConfirmImport}>
-              Yes, import backup
+              {t("btn.confirmImport")}
             </Button>
           </div>
         </div>
@@ -120,7 +124,7 @@ export function BackupImportPanel({ onImport }: BackupImportPanelProps) {
         <div className="backup-import__panel backup-import__panel--success" role="status">
           <p>{message}</p>
           <Button variant="secondary" onClick={resetFlow}>
-            Done
+            {t("btn.done")}
           </Button>
         </div>
       ) : null}
@@ -129,7 +133,7 @@ export function BackupImportPanel({ onImport }: BackupImportPanelProps) {
         <div className="backup-import__panel backup-import__panel--error" role="alert">
           <p>{message}</p>
           <Button variant="secondary" onClick={resetFlow}>
-            Dismiss
+            {t("btn.dismiss")}
           </Button>
         </div>
       ) : null}

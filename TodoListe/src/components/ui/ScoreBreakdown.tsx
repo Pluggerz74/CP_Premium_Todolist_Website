@@ -1,3 +1,4 @@
+import { useI18n } from "../../i18n/useI18n";
 import { cn } from "../../utils/cn";
 
 type ScoreBreakdownProps = {
@@ -8,20 +9,28 @@ type ScoreBreakdownProps = {
 };
 
 export function ScoreBreakdown({ impact, urgency, effort, className }: ScoreBreakdownProps) {
+  const { t } = useI18n();
+
   return (
     <p
       className={cn("score-breakdown", className)}
-      aria-label={`Impact ${impact}, urgency ${urgency}, effort ${effort}`}
+      aria-label={t("score.breakdownAria", { impact, urgency, effort })}
     >
-      <span>Impact {impact}</span>
+      <span>
+        {t("label.impact")} {impact}
+      </span>
       <span className="score-breakdown__sep" aria-hidden="true">
         ·
       </span>
-      <span>Urgency {urgency}</span>
+      <span>
+        {t("label.urgency")} {urgency}
+      </span>
       <span className="score-breakdown__sep" aria-hidden="true">
         ·
       </span>
-      <span>Effort {effort}</span>
+      <span>
+        {t("label.effort")} {effort}
+      </span>
     </p>
   );
 }

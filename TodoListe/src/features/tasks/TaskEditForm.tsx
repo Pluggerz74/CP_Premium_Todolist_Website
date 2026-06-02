@@ -11,6 +11,7 @@ import {
 } from "../../utils/hierarchy";
 import { validateHierarchySelection } from "../../utils/taskHierarchyEdit";
 import { calculateHighValueScore } from "../../utils/scoring";
+import { useI18n } from "../../i18n/useI18n";
 import { Button } from "../../components/ui/Button";
 import { ScorePill } from "../../components/ui/ScorePill";
 
@@ -26,6 +27,7 @@ const signals: TaskPrioritySignal[] = [1, 2, 3, 4, 5];
 const taskTypes: TaskType[] = ["task", "subtask", "bug", "feature", "research"];
 
 export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: TaskEditFormProps) {
+  const { t } = useI18n();
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description);
   const [projectId, setProjectId] = useState(task.projectId);
@@ -73,11 +75,11 @@ export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
     if (!title.trim()) {
-      setError("Task title is required.");
+      setError(t("form.error.titleRequired"));
       return;
     }
     if (!projectId) {
-      setError("Select a project.");
+      setError(t("form.error.projectRequired"));
       return;
     }
 
@@ -120,9 +122,9 @@ export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: 
   return (
     <form className="form form--edit" onSubmit={handleSubmit}>
       <div className="form__score-preview">
-        <span className="eyebrow">High-value score</span>
+        <span className="eyebrow">{t("label.highValueScore")}</span>
         <ScorePill score={previewScore} />
-        <span className="form__score-hint">Updates when you save impact, urgency, or effort.</span>
+        <span className="form__score-hint">{t("score.updatesOnSave")}</span>
       </div>
 
       {error ? (
@@ -132,18 +134,18 @@ export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: 
       ) : null}
 
       <label>
-        Title
+        {t("label.title")}
         <input value={title} onChange={(event) => setTitle(event.target.value)} required />
       </label>
       <label>
-        Description
+        {t("label.description")}
         <textarea value={description} onChange={(event) => setDescription(event.target.value)} rows={3} />
       </label>
 
       <div className="form__section">
-        <p className="form__section-title">Planning</p>
+        <p className="form__section-title">{t("form.section.planning")}</p>
         <label>
-          Project
+          {t("label.project")}
           <select
             value={projectId}
             onChange={(event) => {
@@ -165,7 +167,7 @@ export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: 
         {showHierarchy && areas.length > 0 ? (
           <>
             <label>
-              Area
+              {t("label.area")}
               <select
                 value={areaId}
                 onChange={(event) => {
@@ -176,7 +178,7 @@ export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: 
                   setTaskGroupId("");
                 }}
               >
-                <option value="">None</option>
+                <option value="">{t("option.none")}</option>
                 {areas.map((area) => (
                   <option key={area.id} value={area.id}>
                     {area.title}
@@ -186,7 +188,7 @@ export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: 
             </label>
             {areaId && phases.length > 0 ? (
               <label>
-                Phase
+                {t("label.phase")}
                 <select
                   value={phaseId}
                   onChange={(event) => {
@@ -196,7 +198,7 @@ export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: 
                     setTaskGroupId("");
                   }}
                 >
-                  <option value="">None</option>
+                  <option value="">{t("option.none")}</option>
                   {phases.map((phase) => (
                     <option key={phase.id} value={phase.id}>
                       {phase.title}
@@ -207,7 +209,7 @@ export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: 
             ) : null}
             {phaseId && milestones.length > 0 ? (
               <label>
-                Milestone
+                {t("label.milestone")}
                 <select
                   value={milestoneId}
                   onChange={(event) => {
@@ -216,7 +218,7 @@ export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: 
                     setTaskGroupId("");
                   }}
                 >
-                  <option value="">None</option>
+                  <option value="">{t("option.none")}</option>
                   {milestones.map((milestone) => (
                     <option key={milestone.id} value={milestone.id}>
                       {milestone.title}
@@ -227,7 +229,7 @@ export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: 
             ) : null}
             {milestoneId && epics.length > 0 ? (
               <label>
-                Epic
+                {t("label.epic")}
                 <select
                   value={epicId}
                   onChange={(event) => {
@@ -235,7 +237,7 @@ export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: 
                     setTaskGroupId("");
                   }}
                 >
-                  <option value="">None</option>
+                  <option value="">{t("option.none")}</option>
                   {epics.map((epic) => (
                     <option key={epic.id} value={epic.id}>
                       {epic.title}
@@ -246,9 +248,9 @@ export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: 
             ) : null}
             {epicId && taskGroups.length > 0 ? (
               <label>
-                Task group
+                {t("label.taskGroup")}
                 <select value={taskGroupId} onChange={(event) => setTaskGroupId(event.target.value)}>
-                  <option value="">None</option>
+                  <option value="">{t("option.none")}</option>
                   {taskGroups.map((group) => (
                     <option key={group.id} value={group.id}>
                       {group.title}
@@ -262,18 +264,18 @@ export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: 
       </div>
 
       <div className="form__section">
-        <p className="form__section-title">Status & schedule</p>
+        <p className="form__section-title">{t("form.section.statusSchedule")}</p>
         <div className="form__grid">
           <label>
-            Status
+            {t("label.status")}
             <select value={status} onChange={(event) => setStatus(event.target.value as TaskStatus)}>
-              <option value="todo">Todo</option>
-              <option value="in-progress">In progress</option>
-              <option value="done">Done</option>
+              <option value="todo">{t("status.todo")}</option>
+              <option value="in-progress">{t("status.inProgress")}</option>
+              <option value="done">{t("status.done")}</option>
             </select>
           </label>
           <label>
-            Type
+            {t("label.type")}
             <select value={type} onChange={(event) => setType(event.target.value as TaskType)}>
               {taskTypes.map((option) => (
                 <option key={option} value={option}>
@@ -285,7 +287,7 @@ export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: 
         </div>
         <div className="form__grid">
           <label>
-            Priority
+            {t("label.priority")}
             <select
               value={priority}
               onChange={(event) => setPriority(Number(event.target.value) as TaskPrioritySignal)}
@@ -298,17 +300,17 @@ export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: 
             </select>
           </label>
           <label>
-            Due date
+            {t("label.dueDate")}
             <input type="date" value={dueDate} onChange={(event) => setDueDate(event.target.value)} />
           </label>
         </div>
       </div>
 
       <div className="form__section">
-        <p className="form__section-title">Value signals</p>
+        <p className="form__section-title">{t("form.section.valueSignals")}</p>
         <div className="form__grid form__grid--three">
           <label>
-            Impact
+            {t("label.impact")}
             <select value={impact} onChange={(event) => setImpact(Number(event.target.value) as TaskPrioritySignal)}>
               {signals.map((signal) => (
                 <option key={signal} value={signal}>
@@ -318,7 +320,7 @@ export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: 
             </select>
           </label>
           <label>
-            Urgency
+            {t("label.urgency")}
             <select value={urgency} onChange={(event) => setUrgency(Number(event.target.value) as TaskPrioritySignal)}>
               {signals.map((signal) => (
                 <option key={signal} value={signal}>
@@ -328,7 +330,7 @@ export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: 
             </select>
           </label>
           <label>
-            Effort
+            {t("label.effort")}
             <select value={effort} onChange={(event) => setEffort(Number(event.target.value) as TaskPrioritySignal)}>
               {signals.map((signal) => (
                 <option key={signal} value={signal}>
@@ -341,7 +343,7 @@ export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: 
       </div>
 
       <label>
-        Tags
+        {t("label.tags")}
         <input
           value={tagsInput}
           onChange={(event) => setTagsInput(event.target.value)}
@@ -351,9 +353,9 @@ export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: 
 
       <div className="form__actions">
         <Button type="button" variant="secondary" onClick={onCancel}>
-          Cancel
+          {t("btn.cancel")}
         </Button>
-        <Button type="submit">Save changes</Button>
+        <Button type="submit">{t("btn.save")}</Button>
       </div>
     </form>
   );

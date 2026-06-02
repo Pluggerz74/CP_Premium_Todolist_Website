@@ -1,4 +1,5 @@
 import type { ThemeMode } from "../../types/theme";
+import { useI18n } from "../../i18n/useI18n";
 import { Button } from "./Button";
 
 type ThemeToggleProps = {
@@ -7,9 +8,11 @@ type ThemeToggleProps = {
 };
 
 export function ThemeToggle({ theme, onToggle }: ThemeToggleProps) {
+  const { t } = useI18n();
+
   return (
-    <Button variant="secondary" onClick={onToggle} aria-label="Toggle theme">
-      {theme === "dark" ? "Light" : "Dark"}
+    <Button variant="secondary" onClick={onToggle} aria-label={t("theme.toggle")}>
+      {theme === "dark" ? t("theme.light") : t("theme.dark")}
     </Button>
   );
 }

@@ -43,17 +43,23 @@ export function Dashboard({
       <div className="dashboard-view__mode">
         <ModeBadge mode={complexityMode} />
         <p>
-          {complexityMode === "complex"
-            ? "Hierarchy, maps, and backlog views keep massive projects calm."
-            : "Fast flat lists for everyday high-value execution."}
+          {complexityMode === "complex" ? t("dashboard.modeComplexHint") : t("dashboard.modeSimpleHint")}
         </p>
       </div>
 
       <section className="stats-grid">
-        <StatCard label="Active projects" value={projects.filter((project) => project.status === "active").length} helper="Current execution lanes" />
-        <StatCard label="Open tasks" value={openTasks.length} helper="Not completed yet" />
-        <StatCard label="Today" value={todayTasks.length} helper="Due today" />
-        <StatCard label="Complex projects" value={complexProjects} helper="Full hierarchy enabled" />
+        <StatCard
+          label={t("dashboard.stat.activeProjects")}
+          value={projects.filter((project) => project.status === "active").length}
+          helper={t("dashboard.stat.activeProjectsHelper")}
+        />
+        <StatCard label={t("dashboard.stat.openTasks")} value={openTasks.length} helper={t("dashboard.stat.openTasksHelper")} />
+        <StatCard label={t("dashboard.stat.today")} value={todayTasks.length} helper={t("dashboard.stat.todayHelper")} />
+        <StatCard
+          label={t("dashboard.stat.complexProjects")}
+          value={complexProjects}
+          helper={t("dashboard.stat.complexProjectsHelper")}
+        />
       </section>
 
       {nextAction ? (
@@ -71,11 +77,13 @@ export function Dashboard({
           aria-label={`Focus on ${nextAction.title}`}
         >
           <div>
-            <p className="eyebrow">Next best action</p>
+            <p className="eyebrow">{t("dashboard.nextAction")}</p>
             <h2>{nextAction.title}</h2>
             <div className="next-action-banner__meta">
               <ScorePill score={nextAction.highValueScore} />
-              <span className="task-metadata__due">Due {formatDateLabel(nextAction.dueDate)}</span>
+              <span className="task-metadata__due">
+                {t("due.due")} {formatDateLabel(nextAction.dueDate)}
+              </span>
             </div>
           </div>
           <div className="next-action-banner__actions">
@@ -105,8 +113,8 @@ export function Dashboard({
 
       <section className="section-block">
         <div className="section-heading">
-          <p className="eyebrow">Highest leverage</p>
-          <h2>Execute these first</h2>
+          <p className="eyebrow">{t("dashboard.highestLeverage")}</p>
+          <h2>{t("dashboard.executeFirst")}</h2>
         </div>
         <TaskList
           tasks={tasks}
@@ -120,8 +128,8 @@ export function Dashboard({
 
       <section className="section-block">
         <div className="section-heading">
-          <p className="eyebrow">Portfolio</p>
-          <h2>Projects</h2>
+          <p className="eyebrow">{t("dashboard.portfolio")}</p>
+          <h2>{t("nav.projects")}</h2>
         </div>
         <ProjectList projects={projects.slice(0, 4)} tasks={allTasks} />
       </section>

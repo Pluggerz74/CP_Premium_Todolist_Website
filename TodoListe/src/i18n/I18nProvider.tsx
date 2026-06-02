@@ -1,11 +1,13 @@
 import { createContext, useEffect, useMemo, type ReactNode } from "react";
-import type { Language } from "./translations";
-import { translate, type TranslationKey } from "./translations";
+import type { Language, TranslationKey } from "./translations";
+import { translateWithParams } from "./translations";
+
+type TranslateParams = Record<string, string | number>;
 
 type I18nContextValue = {
   language: Language;
   setLanguage: (language: Language) => void;
-  t: (key: TranslationKey) => string;
+  t: (key: TranslationKey, params?: TranslateParams) => string;
 };
 
 export const I18nContext = createContext<I18nContextValue | null>(null);
@@ -25,7 +27,7 @@ export function I18nProvider({ language, setLanguage, children }: I18nProviderPr
     () => ({
       language,
       setLanguage,
-      t: (key) => translate(language, key),
+      t: (key, params) => translateWithParams(language, key, params),
     }),
     [language, setLanguage],
   );
