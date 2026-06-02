@@ -50,6 +50,8 @@ Home/public_html/todolist
 
 Production URL: [https://todolist.codingplugs.de/](https://todolist.codingplugs.de/) (subdomain root deployment).
 
+**Release status (Agent 10A):** Local pre-production checks pass (`typecheck`, `build`, `dist` inspection). The production domain is **not live yet** (hosting billing); after billing is resolved, upload fresh `dist/` contents and run the live smoke test in `docs/DEPLOYMENT_HETZNER.md`.
+
 The app is configured with this Vite base path:
 
 ```ts

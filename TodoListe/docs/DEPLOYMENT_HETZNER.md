@@ -84,6 +84,12 @@ Expected output folder: **`dist/`**
 
 Do **not** upload `node_modules`, `src/`, `prompts/`, `docs/`, or the project root — only the **contents** of `dist/`.
 
+### After every new build
+
+Always **re-upload the full contents of `dist/`** (all files and folders inside `dist/`, not the `dist` wrapper). Hashed asset filenames change on each build; partial uploads leave stale JS/CSS and cause blank pages or 404s.
+
+**Real live smoke test** on [https://todolist.codingplugs.de/](https://todolist.codingplugs.de/) remains **pending** until Hetzner billing/DNS is active (see Domain status above). Use local `npm run preview` at [http://localhost:4173/](http://localhost:4173/) until then.
+
 ## 2. What to upload
 
 Upload **everything inside `dist/`**, not the `dist` folder itself.

@@ -2,7 +2,7 @@
 
 **Status:** Planning document (Agent 07)  
 **Product:** High Value Todo — premium Apple-like project command center  
-**Current state:** Local-first SPA at [https://todolist.codingplugs.de/](https://todolist.codingplugs.de/)  
+**Current state:** Local-first SPA; production target [https://todolist.codingplugs.de/](https://todolist.codingplugs.de/) (domain offline until Hetzner billing/DNS is active — local release QA complete per Agent 10A)  
 **Vite base:** `/` (subdomain root — do not revert to `/todolist/`)
 
 This document is the product and phased roadmap source of truth for evolving from a private local-first tool into an optional cloud SaaS without abandoning offline-first value.
