@@ -7,7 +7,7 @@ import { getProjectAreas } from "../../utils/hierarchy";
 import { getProgressByArea, getProjectProgress } from "../../utils/progress";
 import { sortByHighValueScore } from "../../utils/scoring";
 import { EmptyState } from "../../components/ui/EmptyState";
-import { ScorePill } from "../../components/ui/ScorePill";
+import { RankedListItem } from "../../components/ui/RankedListItem";
 import { StatCard } from "../../components/ui/StatCard";
 import { TaskMetadata } from "../../components/ui/TaskMetadata";
 import { ModeBadge } from "../../components/ui/ModeBadge";
@@ -18,9 +18,10 @@ type ProjectOverviewProps = {
   hierarchy: ProjectHierarchyStore;
   tasks: Task[];
   taskIndex: TaskIndex;
+  onFocus?: (taskId: string) => void;
 };
 
-export function ProjectOverview({ project, hierarchy, taskIndex }: ProjectOverviewProps) {
+export function ProjectOverview({ project, hierarchy, taskIndex, onFocus }: ProjectOverviewProps) {
   const projectTasks = useMemo(
     () => (project ? taskIndex.byProjectId.get(project.id) ?? [] : []),
     [project, taskIndex],
@@ -116,15 +117,16 @@ export function ProjectOverview({ project, hierarchy, taskIndex }: ProjectOvervi
         ) : (
           <div className="ranked-list">
             {topTasks.map((task, index) => (
-              <div key={task.id} className="ranked-list__item">
-                <span className="ranked-list__rank">{index + 1}</span>
-                <div>
-                  <strong>{task.title}</strong>
-                  <p>{task.description}</p>
-                  <TaskMetadata task={task} variant="inline" showDueDate={false} />
-                </div>
-                <ScorePill score={task.highValueScore} />
-              </div>
+              <RankedListItem
+                key={task.id}
+                rank={index + 1}
+                title={task.title}
+                score={task.highValueScore}
+                onClick={onFocus ? () => onFocus(task.id) : undefined}
+              >
+                <p>{task.description}</p>
+                <TaskMetadata task={task} variant="inline" showDueDate={false} />
+              </RankedListItem>
             ))}
           </div>
         )}

@@ -15,9 +15,10 @@ type FocusModeProps = {
   project?: Project;
   hierarchy?: ProjectHierarchyStore;
   onStatusChange: (taskId: string, status: TaskStatus) => void;
+  onEdit?: (taskId: string) => void;
 };
 
-export function FocusMode({ task, project, hierarchy, onStatusChange }: FocusModeProps) {
+export function FocusMode({ task, project, hierarchy, onStatusChange, onEdit }: FocusModeProps) {
   if (!task) {
     return (
       <div className="focus-view">
@@ -52,6 +53,11 @@ export function FocusMode({ task, project, hierarchy, onStatusChange }: FocusMod
         ) : null}
         <TaskMetadata task={task} variant="focus" />
         <div className="focus-card__actions">
+          {onEdit ? (
+            <Button variant="secondary" onClick={() => onEdit(task.id)}>
+              Edit task
+            </Button>
+          ) : null}
           <Button onClick={() => onStatusChange(task.id, "in-progress")}>Start now</Button>
           <Button variant="secondary" onClick={() => onStatusChange(task.id, "done")}>
             Mark done

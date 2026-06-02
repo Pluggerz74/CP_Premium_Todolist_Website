@@ -14,6 +14,7 @@ type SearchPanelProps = {
   onStatusChange: (taskId: string, status: TaskStatus) => void;
   onDelete: (taskId: string) => void;
   onFocus: (taskId: string) => void;
+  onEdit?: (taskId: string) => void;
 };
 
 export function SearchPanel({
@@ -25,6 +26,7 @@ export function SearchPanel({
   onStatusChange,
   onDelete,
   onFocus,
+  onEdit,
 }: SearchPanelProps) {
   if (!query.trim()) {
     return (
@@ -53,6 +55,7 @@ export function SearchPanel({
         onStatusChange={onStatusChange}
         onDelete={onDelete}
         onFocus={onFocus}
+        onEdit={onEdit}
       />
     );
   }
@@ -65,6 +68,7 @@ export function SearchPanel({
       onStatusChange={onStatusChange}
       onDelete={onDelete}
       onFocus={onFocus}
+      onEdit={onEdit}
     />
   );
 }

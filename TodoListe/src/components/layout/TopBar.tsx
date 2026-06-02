@@ -1,3 +1,4 @@
+import type { RefObject } from "react";
 import { appConfig } from "../../config/app";
 import { Button } from "../ui/Button";
 import { SearchInput } from "../ui/SearchInput";
@@ -6,9 +7,11 @@ type TopBarProps = {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   onNewTask: () => void;
+  onQuickAdd: () => void;
+  searchInputRef?: RefObject<HTMLInputElement | null>;
 };
 
-export function TopBar({ searchQuery, onSearchChange, onNewTask }: TopBarProps) {
+export function TopBar({ searchQuery, onSearchChange, onNewTask, onQuickAdd, searchInputRef }: TopBarProps) {
   return (
     <header className="topbar">
       <div>
@@ -21,7 +24,11 @@ export function TopBar({ searchQuery, onSearchChange, onNewTask }: TopBarProps) 
           value={searchQuery}
           onChange={onSearchChange}
           placeholder="Quick search tasks..."
+          inputRef={searchInputRef}
         />
+        <Button variant="secondary" onClick={onQuickAdd}>
+          Quick Add
+        </Button>
         <Button onClick={onNewTask}>New Task</Button>
       </div>
     </header>

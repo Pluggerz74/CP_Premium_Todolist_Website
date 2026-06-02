@@ -33,6 +33,7 @@ type SidebarProps = {
   onViewChange: (view: AppView) => void;
   onProjectSelect: (projectId: string | null) => void;
   onNewProject: () => void;
+  onQuickAdd?: () => void;
 };
 
 export function Sidebar({
@@ -43,6 +44,7 @@ export function Sidebar({
   onViewChange,
   onProjectSelect,
   onNewProject,
+  onQuickAdd,
 }: SidebarProps) {
   const modeNav = complexityMode === "complex" ? complexNav : simpleNav;
 
@@ -61,6 +63,12 @@ export function Sidebar({
       <div className="sidebar__mode">
         <ModeBadge mode={complexityMode} />
       </div>
+
+      {onQuickAdd && complexityMode === "simple" ? (
+        <div className="sidebar__quick-add">
+          <Button onClick={onQuickAdd}>Quick Add</Button>
+        </div>
+      ) : null}
 
       <nav className="sidebar__nav" aria-label="Primary navigation">
         {coreNav.map((item) => (

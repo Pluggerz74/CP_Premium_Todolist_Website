@@ -1,8 +1,11 @@
+import type { Ref } from "react";
+
 type SearchInputProps = {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
   variant?: "default" | "toolbar";
+  inputRef?: Ref<HTMLInputElement>;
 };
 
 export function SearchInput({
@@ -10,6 +13,7 @@ export function SearchInput({
   onChange,
   placeholder = "Search tasks...",
   variant = "default",
+  inputRef,
 }: SearchInputProps) {
   return (
     <label className={variant === "toolbar" ? "search-input search-input--toolbar" : "search-input"}>
@@ -17,6 +21,7 @@ export function SearchInput({
         ⌕
       </span>
       <input
+        ref={inputRef}
         type="search"
         value={value}
         onChange={(event) => onChange(event.target.value)}

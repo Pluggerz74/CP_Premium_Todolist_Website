@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { AppShell } from "./components/layout/AppShell";
 import { Modal } from "./components/ui/Modal";
 import { Dashboard } from "./features/dashboard/Dashboard";
@@ -17,6 +17,9 @@ import { SettingsPanel } from "./features/settings/SettingsPanel";
 import { TaskFilterBar } from "./features/tasks/TaskFilterBar";
 import { getViewEyebrow, getViewTitle } from "./features/tasks/TaskFilters";
 import { TaskForm } from "./features/tasks/TaskForm";
+import { TaskEditForm } from "./features/tasks/TaskEditForm";
+import { QuickAddForm } from "./features/tasks/QuickAddForm";
+import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useAppSettings } from "./hooks/useAppSettings";
 import { useHierarchy } from "./hooks/useHierarchy";
 import { useProjects } from "./hooks/useProjects";
@@ -25,8 +28,10 @@ import { useTasks } from "./hooks/useTasks";
 import { useTheme } from "./hooks/useTheme";
 import { useViewState } from "./hooks/useViewState";
 import type { ProjectTemplateId } from "./types/template";
+import type { Task } from "./types/task";
 import type { TaskInput, TaskStatus } from "./types/task";
-import { getDemoResetPayload } from "./utils/dataBackup";
+import { getDemoResetPayload, importAppData, type AppDataSnapshot } from "./utils/dataBackup";
+import { migrateHierarchy, migrateProjects, migrateTasks } from "./utils/migration";
 import { generateScaleTestPayload } from "./utils/scaleTestData";
 import {
   filterTasksWithIndex,
@@ -46,7 +51,7 @@ type AppProps = {
 
 export function App({ storageInit }: AppProps) {
   const { projects, createProjectWithTemplate, setProjects } = useProjects();
-  const { tasks, createTask, updateTaskStatus, deleteTask, setTasks } = useTasks();
+  const { tasks, createTask, updateTask, updateTaskStatus, deleteTask, setTasks } = useTasks();
   const { hierarchy, addHierarchy, setHierarchy } = useHierarchy();
   const {
     settings,
@@ -60,8 +65,11 @@ export function App({ storageInit }: AppProps) {
   const { theme, toggleTheme } = useTheme();
   const { activeView, setActiveView, selectedProjectId, setSelectedProjectId } = useViewState();
   const [isTaskModalOpen, setTaskModalOpen] = useState(false);
+  const [isQuickAddOpen, setQuickAddOpen] = useState(false);
   const [isProjectModalOpen, setProjectModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [focusTaskId, setFocusTaskId] = useState<string | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const taskIndex = useTaskIndex(tasks, projects);
   const projectMap = useProjectMap(projects);
@@ -122,6 +130,48 @@ export function App({ storageInit }: AppProps) {
     setActiveView("focus");
   }
 
+  function handleEditTask(taskId: string) {
+    const task = taskIndex.byId.get(taskId);
+    if (task) setEditingTask(task);
+  }
+
+  function handleTaskEditSubmit(taskId: string, input: Partial<TaskInput>) {
+    updateTask(taskId, input);
+    setEditingTask(null);
+  }
+
+  function handleQuickAddSubmit(input: TaskInput) {
+    createTask(input);
+    setQuickAddOpen(false);
+  }
+
+  function handleImportBackup(snapshot: AppDataSnapshot) {
+    const result = importAppData(snapshot);
+    if (!result.ok) {
+      throw new Error(result.error);
+    }
+    setProjects(migrateProjects(snapshot.projects));
+    setTasks(migrateTasks(snapshot.tasks));
+    setHierarchy(migrateHierarchy(snapshot.hierarchy));
+    resetFilters();
+    setSelectedProjectId(null);
+    setFocusTaskId(null);
+    setActiveView("dashboard");
+  }
+
+  function closeModals() {
+    setTaskModalOpen(false);
+    setQuickAddOpen(false);
+    setProjectModalOpen(false);
+    setEditingTask(null);
+  }
+
+  useKeyboardShortcuts({
+    searchInputRef,
+    onQuickAdd: () => setQuickAddOpen(true),
+    onEscape: closeModals,
+  });
+
   function handleSearchChange(query: string) {
     updateFilters({ searchQuery: query });
     if (query.trim() && activeView !== "search") {
@@ -166,6 +216,7 @@ export function App({ storageInit }: AppProps) {
           onStatusChange={handleStatusChange}
           onDelete={deleteTask}
           onFocus={handleFocus}
+          onEdit={handleEditTask}
         />
       );
     }
@@ -178,6 +229,8 @@ export function App({ storageInit }: AppProps) {
           onStatusChange={handleStatusChange}
           onDelete={deleteTask}
           onFocus={handleFocus}
+          onEdit={handleEditTask}
+          onQuickAdd={() => setQuickAddOpen(true)}
         />
       );
     }
@@ -190,6 +243,7 @@ export function App({ storageInit }: AppProps) {
           onStatusChange={handleStatusChange}
           onDelete={deleteTask}
           onFocus={handleFocus}
+          onEdit={handleEditTask}
         />
       );
     }
@@ -202,6 +256,7 @@ export function App({ storageInit }: AppProps) {
           onStatusChange={handleStatusChange}
           onDelete={deleteTask}
           onFocus={handleFocus}
+          onEdit={handleEditTask}
         />
       );
     }
@@ -213,6 +268,7 @@ export function App({ storageInit }: AppProps) {
           project={focusProject}
           hierarchy={hierarchy}
           onStatusChange={handleStatusChange}
+          onEdit={handleEditTask}
         />
       );
     }
@@ -229,7 +285,15 @@ export function App({ storageInit }: AppProps) {
     }
 
     if (activeView === "project-overview") {
-      return <ProjectOverview project={selectedProject} hierarchy={hierarchy} tasks={tasks} taskIndex={taskIndex} />;
+      return (
+        <ProjectOverview
+          project={selectedProject}
+          hierarchy={hierarchy}
+          tasks={tasks}
+          taskIndex={taskIndex}
+          onFocus={handleFocus}
+        />
+      );
     }
 
     if (activeView === "project-map") {
@@ -258,6 +322,7 @@ export function App({ storageInit }: AppProps) {
           onStatusChange={handleStatusChange}
           onDelete={deleteTask}
           onFocus={handleFocus}
+          onEdit={handleEditTask}
         />
       );
     }
@@ -273,6 +338,7 @@ export function App({ storageInit }: AppProps) {
           onStatusChange={handleStatusChange}
           onDelete={deleteTask}
           onFocus={handleFocus}
+          onEdit={handleEditTask}
         />
       );
     }
@@ -288,6 +354,8 @@ export function App({ storageInit }: AppProps) {
           onStatusChange={handleStatusChange}
           onDelete={deleteTask}
           onFocus={handleFocus}
+          onEdit={handleEditTask}
+          onQuickAdd={() => setQuickAddOpen(true)}
         />
       );
     }
@@ -301,6 +369,7 @@ export function App({ storageInit }: AppProps) {
         onDensityChange={setViewDensity}
         onResetDemoData={handleResetDemoData}
         onLoadScaleTestData={handleLoadScaleTestData}
+        onImportBackup={handleImportBackup}
       />
     );
   }
@@ -317,7 +386,9 @@ export function App({ storageInit }: AppProps) {
         onProjectSelect={setSelectedProjectId}
         onSearchChange={handleSearchChange}
         onNewTask={() => setTaskModalOpen(true)}
+        onQuickAdd={() => setQuickAddOpen(true)}
         onNewProject={() => setProjectModalOpen(true)}
+        searchInputRef={searchInputRef}
       >
         {storageInit?.migrated ? (
           <div className="storage-banner" role="status">
@@ -363,6 +434,31 @@ export function App({ storageInit }: AppProps) {
           onSubmit={handleTaskSubmit}
           onCancel={() => setTaskModalOpen(false)}
         />
+      </Modal>
+
+      <Modal title="Quick add" isOpen={isQuickAddOpen} onClose={() => setQuickAddOpen(false)}>
+        <QuickAddForm
+          projects={projects}
+          defaultProjectId={selectedProjectId}
+          onSubmit={handleQuickAddSubmit}
+          onCancel={() => setQuickAddOpen(false)}
+        />
+      </Modal>
+
+      <Modal
+        title="Edit task"
+        isOpen={editingTask !== null}
+        onClose={() => setEditingTask(null)}
+      >
+        {editingTask ? (
+          <TaskEditForm
+            task={editingTask}
+            projects={projects}
+            hierarchy={hierarchy}
+            onSubmit={handleTaskEditSubmit}
+            onCancel={() => setEditingTask(null)}
+          />
+        ) : null}
       </Modal>
 
       <Modal title="Create project" isOpen={isProjectModalOpen} onClose={() => setProjectModalOpen(false)}>

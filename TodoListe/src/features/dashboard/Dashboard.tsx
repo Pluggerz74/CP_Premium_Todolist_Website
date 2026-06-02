@@ -17,6 +17,7 @@ type DashboardProps = {
   onStatusChange: (taskId: string, status: TaskStatus) => void;
   onDelete: (taskId: string) => void;
   onFocus: (taskId: string) => void;
+  onEdit: (taskId: string) => void;
 };
 
 export function Dashboard({
@@ -27,6 +28,7 @@ export function Dashboard({
   onStatusChange,
   onDelete,
   onFocus,
+  onEdit,
 }: DashboardProps) {
   const openTasks = getOpenTasks(allTasks);
   const todayTasks = openTasks.filter((task) => isToday(task.dueDate));
@@ -53,7 +55,19 @@ export function Dashboard({
       </section>
 
       {nextAction ? (
-        <section className="section-block next-action-banner card">
+        <section
+          className="section-block next-action-banner card next-action-banner--clickable"
+          role="button"
+          tabIndex={0}
+          onClick={() => onFocus(nextAction.id)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              onFocus(nextAction.id);
+            }
+          }}
+          aria-label={`Focus on ${nextAction.title}`}
+        >
           <div>
             <p className="eyebrow">Next best action</p>
             <h2>{nextAction.title}</h2>
@@ -62,9 +76,28 @@ export function Dashboard({
               <span className="task-metadata__due">Due {formatDateLabel(nextAction.dueDate)}</span>
             </div>
           </div>
-          <button type="button" className="button button--primary" onClick={() => onFocus(nextAction.id)}>
-            Enter focus
-          </button>
+          <div className="next-action-banner__actions">
+            <button
+              type="button"
+              className="button button--secondary"
+              onClick={(event) => {
+                event.stopPropagation();
+                onEdit(nextAction.id);
+              }}
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              className="button button--primary"
+              onClick={(event) => {
+                event.stopPropagation();
+                onFocus(nextAction.id);
+              }}
+            >
+              Enter focus
+            </button>
+          </div>
         </section>
       ) : null}
 
@@ -73,7 +106,14 @@ export function Dashboard({
           <p className="eyebrow">Highest leverage</p>
           <h2>Execute these first</h2>
         </div>
-        <TaskList tasks={tasks} projects={projects} onStatusChange={onStatusChange} onDelete={onDelete} onFocus={onFocus} />
+        <TaskList
+          tasks={tasks}
+          projects={projects}
+          onStatusChange={onStatusChange}
+          onDelete={onDelete}
+          onFocus={onFocus}
+          onEdit={onEdit}
+        />
       </section>
 
       <section className="section-block">

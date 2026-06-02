@@ -5,6 +5,7 @@ import type { ViewDensity } from "../../types/appSettings";
 import type { TaskIndex } from "../../utils/taskIndex";
 import { getSimpleModeTasksFromIndex } from "../../utils/selectors";
 import { sortByHighValueScore } from "../../utils/scoring";
+import { Button } from "../../components/ui/Button";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { TaskList } from "../tasks/TaskList";
 import { CompactTaskTable } from "./CompactTaskTable";
@@ -18,6 +19,8 @@ type SimpleListPanelProps = {
   onStatusChange: (taskId: string, status: TaskStatus) => void;
   onDelete: (taskId: string) => void;
   onFocus: (taskId: string) => void;
+  onEdit?: (taskId: string) => void;
+  onQuickAdd?: () => void;
 };
 
 export function SimpleListPanel({
@@ -28,6 +31,8 @@ export function SimpleListPanel({
   onStatusChange,
   onDelete,
   onFocus,
+  onEdit,
+  onQuickAdd,
 }: SimpleListPanelProps) {
   const simpleTasks = useMemo(
     () => sortByHighValueScore(getSimpleModeTasksFromIndex(tasks, taskIndex)),
@@ -39,8 +44,11 @@ export function SimpleListPanel({
   if (simpleTasks.length === 0) {
     return (
       <EmptyState
+        variant="subtle"
+        icon="≡"
         title="No simple tasks yet"
-        description="Create a simple project or switch to Simple Mode to manage everyday todos without hierarchy overhead."
+        description="Use Quick Add for a fast personal todo, or create a simple project to get started."
+        action={onQuickAdd ? <Button onClick={onQuickAdd}>Quick Add</Button> : undefined}
       />
     );
   }
@@ -54,6 +62,7 @@ export function SimpleListPanel({
         onStatusChange={onStatusChange}
         onDelete={onDelete}
         onFocus={onFocus}
+        onEdit={onEdit}
       />
     );
   }
@@ -66,6 +75,7 @@ export function SimpleListPanel({
       onStatusChange={onStatusChange}
       onDelete={onDelete}
       onFocus={onFocus}
+      onEdit={onEdit}
     />
   );
 }

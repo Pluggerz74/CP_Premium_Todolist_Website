@@ -1,5 +1,5 @@
 import type { Task } from "../../types/task";
-import { formatDateLabel } from "../../utils/dates";
+import { formatDateLabel, getDueDateTone } from "../../utils/dates";
 import { cn } from "../../utils/cn";
 import { PriorityBadge } from "./PriorityBadge";
 import { ScoreBreakdown } from "./ScoreBreakdown";
@@ -37,13 +37,19 @@ export function TaskMetadata({
     );
   }
 
+  const dueTone = getDueDateTone(task.dueDate);
+  const dueClass = dueTone !== "none" ? `task-metadata__due--${dueTone}` : "";
+
   if (variant === "inline") {
     return (
       <div className={cn("task-metadata", "task-metadata--inline", className)}>
         <StatusBadge status={task.status} />
         <PriorityBadge priority={task.priority} />
         {showDueDate ? (
-          <span className="task-metadata__due">Due {formatDateLabel(task.dueDate)}</span>
+          <span className={cn("task-metadata__due", dueClass)}>
+            {dueTone === "overdue" ? "Overdue" : dueTone === "today" ? "Today" : "Due"}{" "}
+            {formatDateLabel(task.dueDate)}
+          </span>
         ) : null}
       </div>
     );
@@ -53,7 +59,10 @@ export function TaskMetadata({
     <div className={cn("task-metadata", "task-metadata--card", className)}>
       <PriorityBadge priority={task.priority} />
       {showDueDate ? (
-        <span className="task-metadata__due">Due {formatDateLabel(task.dueDate)}</span>
+        <span className={cn("task-metadata__due", dueClass)}>
+          {dueTone === "overdue" ? "Overdue" : dueTone === "today" ? "Today" : "Due"}{" "}
+          {formatDateLabel(task.dueDate)}
+        </span>
       ) : null}
       <ScoreBreakdown impact={task.impact} urgency={task.urgency} effort={task.effort} />
     </div>

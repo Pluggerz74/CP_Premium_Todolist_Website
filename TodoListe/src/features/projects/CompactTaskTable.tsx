@@ -17,6 +17,7 @@ type CompactTaskTableProps = {
   onStatusChange: (taskId: string, status: TaskStatus) => void;
   onDelete: (taskId: string) => void;
   onFocus: (taskId: string) => void;
+  onEdit?: (taskId: string) => void;
 };
 
 const COMPACT_ROW_HEIGHT = 56;
@@ -27,12 +28,14 @@ function CompactTaskRow({
   onStatusChange,
   onDelete,
   onFocus,
+  onEdit,
 }: {
   task: Task;
   project: Project | undefined;
   onStatusChange: (taskId: string, status: TaskStatus) => void;
   onDelete: (taskId: string) => void;
   onFocus: (taskId: string) => void;
+  onEdit?: (taskId: string) => void;
 }) {
   return (
     <div className="compact-table__row" role="row">
@@ -59,6 +62,11 @@ function CompactTaskRow({
       </span>
       <span role="cell">{formatDateLabel(task.dueDate)}</span>
       <span className="compact-table__actions" role="cell">
+        {onEdit ? (
+          <Button variant="ghost" onClick={() => onEdit(task.id)}>
+            Edit
+          </Button>
+        ) : null}
         <Button variant="ghost" onClick={() => onFocus(task.id)}>
           Focus
         </Button>
@@ -77,6 +85,7 @@ export function CompactTaskTable({
   onStatusChange,
   onDelete,
   onFocus,
+  onEdit,
 }: CompactTaskTableProps) {
   const resolvedProjectMap = useMemo(() => {
     if (projectMap) return projectMap;
@@ -114,6 +123,7 @@ export function CompactTaskTable({
               onStatusChange={onStatusChange}
               onDelete={onDelete}
               onFocus={onFocus}
+              onEdit={onEdit}
             />
           )}
         />
@@ -126,6 +136,7 @@ export function CompactTaskTable({
             onStatusChange={onStatusChange}
             onDelete={onDelete}
             onFocus={onFocus}
+            onEdit={onEdit}
           />
         ))
       )}

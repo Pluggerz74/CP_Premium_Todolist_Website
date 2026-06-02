@@ -1,4 +1,4 @@
-import type { PropsWithChildren } from "react";
+import type { PropsWithChildren, RefObject } from "react";
 import type { Project } from "../../types/project";
 import type { ProjectComplexityMode } from "../../types/project";
 import type { AppView } from "../../types/view";
@@ -15,7 +15,9 @@ type AppShellProps = PropsWithChildren<{
   onProjectSelect: (projectId: string | null) => void;
   onSearchChange: (query: string) => void;
   onNewTask: () => void;
+  onQuickAdd: () => void;
   onNewProject: () => void;
+  searchInputRef?: RefObject<HTMLInputElement | null>;
 }>;
 
 export function AppShell({
@@ -29,7 +31,9 @@ export function AppShell({
   onProjectSelect,
   onSearchChange,
   onNewTask,
+  onQuickAdd,
   onNewProject,
+  searchInputRef,
 }: AppShellProps) {
   return (
     <div className="app-shell">
@@ -41,9 +45,16 @@ export function AppShell({
         onViewChange={onViewChange}
         onProjectSelect={onProjectSelect}
         onNewProject={onNewProject}
+        onQuickAdd={onQuickAdd}
       />
       <main className="app-main">
-        <TopBar searchQuery={searchQuery} onSearchChange={onSearchChange} onNewTask={onNewTask} />
+        <TopBar
+          searchQuery={searchQuery}
+          onSearchChange={onSearchChange}
+          onNewTask={onNewTask}
+          onQuickAdd={onQuickAdd}
+          searchInputRef={searchInputRef}
+        />
         <div className="app-content">{children}</div>
       </main>
     </div>

@@ -17,6 +17,7 @@ type BacklogPanelProps = {
   onStatusChange: (taskId: string, status: TaskStatus) => void;
   onDelete: (taskId: string) => void;
   onFocus: (taskId: string) => void;
+  onEdit?: (taskId: string) => void;
 };
 
 export function BacklogPanel({
@@ -27,6 +28,7 @@ export function BacklogPanel({
   onStatusChange,
   onDelete,
   onFocus,
+  onEdit,
 }: BacklogPanelProps) {
   const backlogTasks = useMemo(
     () =>
@@ -56,6 +58,7 @@ export function BacklogPanel({
         onStatusChange={onStatusChange}
         onDelete={onDelete}
         onFocus={onFocus}
+        onEdit={onEdit}
       />
     );
   }
@@ -68,6 +71,7 @@ export function BacklogPanel({
       onStatusChange={onStatusChange}
       onDelete={onDelete}
       onFocus={onFocus}
+      onEdit={onEdit}
     />
   );
 }

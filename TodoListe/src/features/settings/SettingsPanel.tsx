@@ -1,12 +1,13 @@
 import { STORAGE_VERSION } from "../../constants/storageKeys";
 import type { ThemeMode } from "../../types/theme";
 import type { AppSettings } from "../../types/appSettings";
-import { downloadAppBackup } from "../../utils/dataBackup";
+import type { AppDataSnapshot } from "../../utils/dataBackup";
 import { readStorageMeta } from "../../utils/storageMigration";
 import { Card } from "../../components/ui/Card";
 import { ThemeToggle } from "../../components/ui/ThemeToggle";
 import { ModeBadge } from "../../components/ui/ModeBadge";
 import { Button } from "../../components/ui/Button";
+import { BackupImportPanel } from "./BackupImportPanel";
 
 type SettingsPanelProps = {
   theme: ThemeMode;
@@ -16,6 +17,7 @@ type SettingsPanelProps = {
   onDensityChange: (density: AppSettings["viewDensity"]) => void;
   onResetDemoData?: () => void;
   onLoadScaleTestData?: () => void;
+  onImportBackup?: (snapshot: AppDataSnapshot) => void;
 };
 
 export function SettingsPanel({
@@ -26,6 +28,7 @@ export function SettingsPanel({
   onDensityChange,
   onResetDemoData,
   onLoadScaleTestData,
+  onImportBackup,
 }: SettingsPanelProps) {
   const storageMeta = readStorageMeta();
 
@@ -100,16 +103,34 @@ export function SettingsPanel({
             {storageMeta.lastError ? ` Last write issue: ${storageMeta.lastError}` : " Your data stays on this device."}
           </p>
         </div>
+        {onImportBackup ? (
+          <BackupImportPanel onImport={onImportBackup} />
+        ) : null}
         <div className="settings-card__actions">
-          <Button variant="secondary" onClick={downloadAppBackup}>
-            Download backup
-          </Button>
           {onResetDemoData ? (
             <Button variant="secondary" onClick={onResetDemoData}>
               Reload demo data
             </Button>
           ) : null}
         </div>
+      </Card>
+
+      <Card className="settings-card">
+        <div>
+          <h3>Keyboard shortcuts</h3>
+          <p>Lightweight shortcuts when you are not typing in a field.</p>
+        </div>
+        <ul className="settings-shortcuts">
+          <li>
+            <kbd>/</kbd> Focus search
+          </li>
+          <li>
+            <kbd>n</kbd> Quick Add task
+          </li>
+          <li>
+            <kbd>Esc</kbd> Close modal
+          </li>
+        </ul>
       </Card>
 
       {import.meta.env.DEV && onLoadScaleTestData ? (

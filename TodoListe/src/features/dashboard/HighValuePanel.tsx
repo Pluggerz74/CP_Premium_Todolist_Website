@@ -3,7 +3,7 @@ import type { Task, TaskStatus } from "../../types/task";
 import { formatDateLabel } from "../../utils/dates";
 import { sortByHighValueScore } from "../../utils/scoring";
 import { EmptyState } from "../../components/ui/EmptyState";
-import { ScorePill } from "../../components/ui/ScorePill";
+import { RankedListItem } from "../../components/ui/RankedListItem";
 import { TaskMetadata } from "../../components/ui/TaskMetadata";
 import { TaskList } from "../tasks/TaskList";
 
@@ -13,9 +13,10 @@ type HighValuePanelProps = {
   onStatusChange: (taskId: string, status: TaskStatus) => void;
   onDelete: (taskId: string) => void;
   onFocus: (taskId: string) => void;
+  onEdit?: (taskId: string) => void;
 };
 
-export function HighValuePanel({ projects, tasks, onStatusChange, onDelete, onFocus }: HighValuePanelProps) {
+export function HighValuePanel({ projects, tasks, onStatusChange, onDelete, onFocus, onEdit }: HighValuePanelProps) {
   const rankedTasks = sortByHighValueScore(tasks.filter((task) => task.status !== "done"));
 
   return (
@@ -36,19 +37,20 @@ export function HighValuePanel({ projects, tasks, onStatusChange, onDelete, onFo
           {rankedTasks.map((task, index) => {
             const project = projects.find((item) => item.id === task.projectId);
             return (
-              <div key={task.id} className="ranked-list__item">
-                <span className="ranked-list__rank">{index + 1}</span>
-                <div>
-                  <strong>{task.title}</strong>
-                  <div className="ranked-list__meta">
-                    <TaskMetadata task={task} variant="inline" showDueDate={false} />
-                    <span className="task-metadata__due">
-                      {project?.name ?? "Project"} · Due {formatDateLabel(task.dueDate)}
-                    </span>
-                  </div>
+              <RankedListItem
+                key={task.id}
+                rank={index + 1}
+                title={task.title}
+                score={task.highValueScore}
+                onClick={() => onFocus(task.id)}
+              >
+                <div className="ranked-list__meta">
+                  <TaskMetadata task={task} variant="inline" showDueDate={false} />
+                  <span className="task-metadata__due">
+                    {project?.name ?? "Project"} · Due {formatDateLabel(task.dueDate)}
+                  </span>
                 </div>
-                <ScorePill score={task.highValueScore} />
-              </div>
+              </RankedListItem>
             );
           })}
         </div>
@@ -59,6 +61,7 @@ export function HighValuePanel({ projects, tasks, onStatusChange, onDelete, onFo
           onStatusChange={onStatusChange}
           onDelete={onDelete}
           onFocus={onFocus}
+          onEdit={onEdit}
         />
       )}
     </section>

@@ -13,6 +13,7 @@ type TaskListProps = {
   onStatusChange: (taskId: string, status: TaskStatus) => void;
   onDelete: (taskId: string) => void;
   onFocus: (taskId: string) => void;
+  onEdit?: (taskId: string) => void;
 };
 
 const COMFORTABLE_ROW_HEIGHT = 132;
@@ -24,6 +25,7 @@ export function TaskList({
   onStatusChange,
   onDelete,
   onFocus,
+  onEdit,
 }: TaskListProps) {
   const resolvedProjectMap = useMemo(() => {
     if (projectMap) return projectMap;
@@ -56,6 +58,7 @@ export function TaskList({
               onStatusChange={onStatusChange}
               onDelete={onDelete}
               onFocus={onFocus}
+              onEdit={onEdit}
             />
           )}
         />
@@ -73,6 +76,7 @@ export function TaskList({
           onStatusChange={onStatusChange}
           onDelete={onDelete}
           onFocus={onFocus}
+          onEdit={onEdit}
         />
       ))}
     </section>

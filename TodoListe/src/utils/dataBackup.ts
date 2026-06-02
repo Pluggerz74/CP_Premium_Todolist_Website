@@ -29,7 +29,7 @@ export function exportAppData(): AppDataSnapshot {
   };
 }
 
-export function importAppData(snapshot: unknown): { ok: true } | { ok: false; error: string } {
+export function validateBackupSnapshot(snapshot: unknown): { ok: true; data: AppDataSnapshot } | { ok: false; error: string } {
   if (!snapshot || typeof snapshot !== "object") {
     return { ok: false, error: "Invalid backup format" };
   }
@@ -39,6 +39,38 @@ export function importAppData(snapshot: unknown): { ok: true } | { ok: false; er
     return { ok: false, error: "Backup is missing required collections" };
   }
 
+  if (typeof data.hierarchy !== "object" || !Array.isArray((data.hierarchy as ProjectHierarchyStore).areas)) {
+    return { ok: false, error: "Backup hierarchy is invalid" };
+  }
+
+  return {
+    ok: true,
+    data: {
+      version: typeof data.version === "number" ? data.version : 1,
+      exportedAt: typeof data.exportedAt === "string" ? data.exportedAt : new Date().toISOString(),
+      projects: data.projects,
+      tasks: data.tasks,
+      hierarchy: data.hierarchy as ProjectHierarchyStore,
+    },
+  };
+}
+
+export function parseBackupFile(content: string): { ok: true; snapshot: AppDataSnapshot } | { ok: false; error: string } {
+  try {
+    const parsed: unknown = JSON.parse(content);
+    const validated = validateBackupSnapshot(parsed);
+    if (!validated.ok) return validated;
+    return { ok: true, snapshot: validated.data };
+  } catch {
+    return { ok: false, error: "Invalid JSON file" };
+  }
+}
+
+export function importAppData(snapshot: unknown): { ok: true } | { ok: false; error: string } {
+  const validated = validateBackupSnapshot(snapshot);
+  if (!validated.ok) return validated;
+
+  const data = validated.data;
   writeStorage(storageKeys.projects, migrateProjects(data.projects));
   writeStorage(storageKeys.tasks, migrateTasks(data.tasks));
   writeStorage(storageKeys.hierarchy, migrateHierarchy(data.hierarchy));

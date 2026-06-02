@@ -15,9 +15,10 @@ type TaskCardProps = {
   onStatusChange: (taskId: string, status: TaskStatus) => void;
   onDelete: (taskId: string) => void;
   onFocus: (taskId: string) => void;
+  onEdit?: (taskId: string) => void;
 };
 
-export function TaskCard({ task, project, onStatusChange, onDelete, onFocus }: TaskCardProps) {
+export function TaskCard({ task, project, onStatusChange, onDelete, onFocus, onEdit }: TaskCardProps) {
   return (
     <Card className="task-card">
       <div className="task-card__header">
@@ -37,6 +38,11 @@ export function TaskCard({ task, project, onStatusChange, onDelete, onFocus }: T
       <TaskMetadata task={task} variant="card" />
 
       <div className="task-card__actions">
+        {onEdit ? (
+          <Button variant="secondary" onClick={() => onEdit(task.id)}>
+            Edit
+          </Button>
+        ) : null}
         <Button variant="secondary" onClick={() => onFocus(task.id)}>
           Focus
         </Button>
