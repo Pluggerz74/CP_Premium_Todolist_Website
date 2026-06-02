@@ -6,6 +6,8 @@ import { getScoreLabel } from "../../utils/scoring";
 import { VIRTUAL_LIST_THRESHOLD } from "../../utils/taskIndex";
 import { Button } from "../../components/ui/Button";
 import { EmptyState } from "../../components/ui/EmptyState";
+import { ScorePill } from "../../components/ui/ScorePill";
+import { TagChips } from "../../components/ui/TagChips";
 import { VirtualList } from "../../components/ui/VirtualList";
 
 type CompactTaskTableProps = {
@@ -36,7 +38,9 @@ function CompactTaskRow({
     <div className="compact-table__row" role="row">
       <div className="compact-table__title" role="cell">
         <strong>{task.title}</strong>
-        {task.tags.length > 0 ? <span className="compact-table__tags">{task.tags.join(", ")}</span> : null}
+        {task.tags.length > 0 ? (
+          <TagChips tags={task.tags} prefix maxVisible={2} className="compact-table__tags" />
+        ) : null}
       </div>
       <span role="cell">{project?.name ?? "—"}</span>
       <span role="cell">
@@ -51,7 +55,7 @@ function CompactTaskRow({
         </select>
       </span>
       <span role="cell" title={getScoreLabel(task.highValueScore)}>
-        {task.highValueScore}
+        <ScorePill score={task.highValueScore} compact />
       </span>
       <span role="cell">{formatDateLabel(task.dueDate)}</span>
       <span className="compact-table__actions" role="cell">

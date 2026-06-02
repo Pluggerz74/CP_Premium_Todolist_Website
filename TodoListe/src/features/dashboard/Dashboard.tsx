@@ -1,10 +1,11 @@
 import type { ProjectComplexityMode } from "../../types/project";
 import type { Project } from "../../types/project";
 import type { Task, TaskStatus } from "../../types/task";
-import { isToday, isUpcoming } from "../../utils/dates";
+import { formatDateLabel, isToday, isUpcoming } from "../../utils/dates";
 import { getNextBestAction, getOpenTasks } from "../../utils/selectors";
 import { StatCard } from "../../components/ui/StatCard";
 import { ModeBadge } from "../../components/ui/ModeBadge";
+import { ScorePill } from "../../components/ui/ScorePill";
 import { ProjectList } from "../projects/ProjectList";
 import { TaskList } from "../tasks/TaskList";
 
@@ -56,7 +57,10 @@ export function Dashboard({
           <div>
             <p className="eyebrow">Next best action</p>
             <h2>{nextAction.title}</h2>
-            <p>Score {nextAction.highValueScore} · Due {nextAction.dueDate}</p>
+            <div className="next-action-banner__meta">
+              <ScorePill score={nextAction.highValueScore} />
+              <span className="task-metadata__due">Due {formatDateLabel(nextAction.dueDate)}</span>
+            </div>
           </div>
           <button type="button" className="button button--primary" onClick={() => onFocus(nextAction.id)}>
             Enter focus

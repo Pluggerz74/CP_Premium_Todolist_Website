@@ -27,6 +27,7 @@ import { useViewState } from "./hooks/useViewState";
 import type { ProjectTemplateId } from "./types/template";
 import type { TaskInput, TaskStatus } from "./types/task";
 import { getDemoResetPayload } from "./utils/dataBackup";
+import { generateScaleTestPayload } from "./utils/scaleTestData";
 import {
   filterTasksWithIndex,
   getHighValueTasks,
@@ -136,6 +137,17 @@ export function App({ storageInit }: AppProps) {
     resetFilters();
     setSelectedProjectId(null);
     setActiveView("dashboard");
+  }
+
+  function handleLoadScaleTestData() {
+    const payload = generateScaleTestPayload(1200);
+    setProjects(payload.projects);
+    setTasks(payload.tasks);
+    setHierarchy(payload.hierarchy);
+    resetFilters();
+    setComplexityMode("complex");
+    setSelectedProjectId("project-game-dev");
+    setActiveView("backlog");
   }
 
   function handleSelectProject(projectId: string) {
@@ -288,6 +300,7 @@ export function App({ storageInit }: AppProps) {
         onComplexityModeChange={setComplexityMode}
         onDensityChange={setViewDensity}
         onResetDemoData={handleResetDemoData}
+        onLoadScaleTestData={handleLoadScaleTestData}
       />
     );
   }

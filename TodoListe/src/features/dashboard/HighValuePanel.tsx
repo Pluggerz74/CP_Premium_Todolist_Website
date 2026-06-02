@@ -1,7 +1,10 @@
 import type { Project } from "../../types/project";
 import type { Task, TaskStatus } from "../../types/task";
+import { formatDateLabel } from "../../utils/dates";
 import { sortByHighValueScore } from "../../utils/scoring";
 import { EmptyState } from "../../components/ui/EmptyState";
+import { ScorePill } from "../../components/ui/ScorePill";
+import { TaskMetadata } from "../../components/ui/TaskMetadata";
 import { TaskList } from "../tasks/TaskList";
 
 type HighValuePanelProps = {
@@ -37,11 +40,14 @@ export function HighValuePanel({ projects, tasks, onStatusChange, onDelete, onFo
                 <span className="ranked-list__rank">{index + 1}</span>
                 <div>
                   <strong>{task.title}</strong>
-                  <p>
-                    {project?.name ?? "Project"} · Due {task.dueDate}
-                  </p>
+                  <div className="ranked-list__meta">
+                    <TaskMetadata task={task} variant="inline" showDueDate={false} />
+                    <span className="task-metadata__due">
+                      {project?.name ?? "Project"} · Due {formatDateLabel(task.dueDate)}
+                    </span>
+                  </div>
                 </div>
-                <span className="ranked-list__score">{task.highValueScore}</span>
+                <ScorePill score={task.highValueScore} />
               </div>
             );
           })}

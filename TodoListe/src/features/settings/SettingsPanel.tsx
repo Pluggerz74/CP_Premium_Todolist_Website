@@ -15,6 +15,7 @@ type SettingsPanelProps = {
   onComplexityModeChange: (mode: AppSettings["complexityMode"]) => void;
   onDensityChange: (density: AppSettings["viewDensity"]) => void;
   onResetDemoData?: () => void;
+  onLoadScaleTestData?: () => void;
 };
 
 export function SettingsPanel({
@@ -24,6 +25,7 @@ export function SettingsPanel({
   onComplexityModeChange,
   onDensityChange,
   onResetDemoData,
+  onLoadScaleTestData,
 }: SettingsPanelProps) {
   const storageMeta = readStorageMeta();
 
@@ -109,6 +111,23 @@ export function SettingsPanel({
           ) : null}
         </div>
       </Card>
+
+      {import.meta.env.DEV && onLoadScaleTestData ? (
+        <Card className="settings-card settings-card--dev">
+          <div>
+            <h3>Development scale test</h3>
+            <p>
+              Load ~1,200 generated tasks on top of demo data to stress-test lists, search, filters, and
+              virtualization. Use Reload demo data to restore the normal seed.
+            </p>
+          </div>
+          <div className="settings-card__actions">
+            <Button variant="secondary" onClick={onLoadScaleTestData}>
+              Load scale test data
+            </Button>
+          </div>
+        </Card>
+      ) : null}
     </section>
   );
 }

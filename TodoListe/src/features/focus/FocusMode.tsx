@@ -2,14 +2,13 @@ import type { ProjectHierarchyStore } from "../../types/hierarchy";
 import type { Project } from "../../types/project";
 import type { Task, TaskStatus } from "../../types/task";
 import { buildTaskBreadcrumbs } from "../../utils/hierarchy";
-import { calculateHighValueScore } from "../../utils/scoring";
-import { formatStatusLabel, getPriorityLabel } from "../../utils/formatLabels";
 import { Breadcrumbs } from "../../components/ui/Breadcrumbs";
 import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { ScorePill } from "../../components/ui/ScorePill";
+import { TaskMetadata } from "../../components/ui/TaskMetadata";
 
 type FocusModeProps = {
   task: Task | null;
@@ -32,7 +31,6 @@ export function FocusMode({ task, project, hierarchy, onStatusChange }: FocusMod
     );
   }
 
-  const score = calculateHighValueScore(task);
   const breadcrumbs = hierarchy ? buildTaskBreadcrumbs(task, hierarchy, project) : [];
 
   return (
@@ -40,7 +38,7 @@ export function FocusMode({ task, project, hierarchy, onStatusChange }: FocusMod
       <Card className="focus-card">
         <div className="focus-card__top">
           <Badge tone="premium">Focus mode</Badge>
-          <ScorePill score={score} />
+          <ScorePill score={task.highValueScore} />
         </div>
         {breadcrumbs.length > 0 ? <Breadcrumbs items={breadcrumbs} /> : null}
         <h2>{task.title}</h2>
@@ -52,18 +50,7 @@ export function FocusMode({ task, project, hierarchy, onStatusChange }: FocusMod
             <p>{task.acceptanceCriteria}</p>
           </div>
         ) : null}
-        <div className="focus-card__signals">
-          <span>{formatStatusLabel(task.status)}</span>
-          <span>{getPriorityLabel(task.priority)} priority</span>
-          <span>Impact {task.impact}</span>
-          <span>Urgency {task.urgency}</span>
-          <span>Effort {task.effort}</span>
-          {task.tags.map((tag) => (
-            <span key={tag} className="tag-chip">
-              #{tag}
-            </span>
-          ))}
-        </div>
+        <TaskMetadata task={task} variant="focus" />
         <div className="focus-card__actions">
           <Button onClick={() => onStatusChange(task.id, "in-progress")}>Start now</Button>
           <Button variant="secondary" onClick={() => onStatusChange(task.id, "done")}>

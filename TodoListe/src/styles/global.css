@@ -675,6 +675,138 @@ textarea {
   color: var(--muted-strong);
 }
 
+.task-metadata {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.task-metadata--focus {
+  max-width: 760px;
+  padding-top: var(--space-2);
+}
+
+.task-metadata__group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.task-metadata--card {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+}
+
+.task-metadata--inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.task-metadata__due {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.score-breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.score-breakdown__sep {
+  opacity: 0.45;
+}
+
+.priority-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.84rem;
+  color: var(--muted-strong);
+}
+
+.priority-badge__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--muted);
+}
+
+.priority-badge__dot--5,
+.priority-badge__dot--4 {
+  background: var(--danger);
+}
+
+.priority-badge__dot--3 {
+  background: var(--warning);
+}
+
+.priority-badge__dot--2,
+.priority-badge__dot--1 {
+  background: var(--muted);
+}
+
+.tag-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.task-metadata__tags {
+  padding-top: var(--space-1);
+}
+
+.next-action-banner__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.ranked-list__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.score-pill--compact {
+  padding: 2px 8px 2px 2px;
+  gap: 6px;
+}
+
+.score-pill--compact strong {
+  min-width: 28px;
+  height: 28px;
+  font-size: 0.75rem;
+}
+
+.tag-chip--more {
+  color: var(--muted);
+  background: transparent;
+}
+
+.settings-card--dev {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--warning) 35%, var(--border));
+}
+
+.compact-table__tags {
+  margin-top: 6px;
+}
+
 .focus-card__criteria {
   max-width: 760px;
 }
@@ -1090,9 +1222,6 @@ textarea {
 }
 
 .task-card__tags {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
   margin: 12px 0;
 }
 

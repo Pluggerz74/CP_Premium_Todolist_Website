@@ -2,11 +2,19 @@ import { getScoreLabel } from "../../utils/scoring";
 import { getScoreTierClass } from "../../utils/formatLabels";
 import { cn } from "../../utils/cn";
 
-export function ScorePill({ score }: { score: number }) {
+type ScorePillProps = {
+  score: number;
+  compact?: boolean;
+};
+
+export function ScorePill({ score, compact = false }: ScorePillProps) {
   return (
-    <span className={cn("score-pill", getScoreTierClass(score))} title={getScoreLabel(score)}>
+    <span
+      className={cn("score-pill", getScoreTierClass(score), compact && "score-pill--compact")}
+      title={getScoreLabel(score)}
+    >
       <strong>{score}</strong>
-      <span>{getScoreLabel(score)}</span>
+      {compact ? null : <span>{getScoreLabel(score)}</span>}
     </span>
   );
 }

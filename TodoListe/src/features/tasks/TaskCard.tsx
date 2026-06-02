@@ -1,17 +1,13 @@
 import type { Project } from "../../types/project";
 import type { Task, TaskStatus } from "../../types/task";
-import { formatDateLabel } from "../../utils/dates";
-import {
-  formatStatusLabel,
-  formatTaskTypeLabel,
-  getPriorityLabel,
-  getStatusTone,
-} from "../../utils/formatLabels";
-import { cn } from "../../utils/cn";
+import { formatTaskTypeLabel } from "../../utils/formatLabels";
 import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { ScorePill } from "../../components/ui/ScorePill";
+import { StatusBadge } from "../../components/ui/StatusBadge";
+import { TagChips } from "../../components/ui/TagChips";
+import { TaskMetadata } from "../../components/ui/TaskMetadata";
 
 type TaskCardProps = {
   task: Task;
@@ -22,15 +18,11 @@ type TaskCardProps = {
 };
 
 export function TaskCard({ task, project, onStatusChange, onDelete, onFocus }: TaskCardProps) {
-  const statusTone = getStatusTone(task.status);
-
   return (
     <Card className="task-card">
       <div className="task-card__header">
         <div>
-          <Badge tone={statusTone} className={`badge--status-${task.status}`}>
-            {formatStatusLabel(task.status)}
-          </Badge>
+          <StatusBadge status={task.status} />
           <Badge tone="neutral">{formatTaskTypeLabel(task.type)}</Badge>
           {project ? <span className="task-card__project">{project.name}</span> : null}
         </div>
@@ -40,29 +32,9 @@ export function TaskCard({ task, project, onStatusChange, onDelete, onFocus }: T
       <h3>{task.title}</h3>
       <p>{task.description}</p>
 
-      {task.tags.length > 0 ? (
-        <div className="task-card__tags">
-          {task.tags.map((tag) => (
-            <span key={tag} className="tag-chip">
-              {tag}
-            </span>
-          ))}
-        </div>
-      ) : null}
+      <TagChips tags={task.tags} className="task-card__tags" />
 
-      <div className="task-card__meta">
-        <span className="task-card__priority">
-          <span
-            className={cn("task-card__priority-dot", `task-card__priority-dot--${task.priority}`)}
-            aria-hidden="true"
-          />
-          {getPriorityLabel(task.priority)}
-        </span>
-        <span>Due {formatDateLabel(task.dueDate)}</span>
-        <span>Impact {task.impact}</span>
-        <span>Urgency {task.urgency}</span>
-        <span>Effort {task.effort}</span>
-      </div>
+      <TaskMetadata task={task} variant="card" />
 
       <div className="task-card__actions">
         <Button variant="secondary" onClick={() => onFocus(task.id)}>

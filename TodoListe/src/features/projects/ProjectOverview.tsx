@@ -7,7 +7,9 @@ import { getProjectAreas } from "../../utils/hierarchy";
 import { getProgressByArea, getProjectProgress } from "../../utils/progress";
 import { sortByHighValueScore } from "../../utils/scoring";
 import { EmptyState } from "../../components/ui/EmptyState";
+import { ScorePill } from "../../components/ui/ScorePill";
 import { StatCard } from "../../components/ui/StatCard";
+import { TaskMetadata } from "../../components/ui/TaskMetadata";
 import { ModeBadge } from "../../components/ui/ModeBadge";
 import { Card } from "../../components/ui/Card";
 
@@ -119,8 +121,9 @@ export function ProjectOverview({ project, hierarchy, taskIndex }: ProjectOvervi
                 <div>
                   <strong>{task.title}</strong>
                   <p>{task.description}</p>
+                  <TaskMetadata task={task} variant="inline" showDueDate={false} />
                 </div>
-                <span className="ranked-list__score">{task.highValueScore}</span>
+                <ScorePill score={task.highValueScore} />
               </div>
             ))}
           </div>
