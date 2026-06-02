@@ -21,14 +21,14 @@ type TaskCardProps = {
 };
 
 export function TaskCard({ task, project, onStatusChange, onDelete, onFocus, onEdit }: TaskCardProps) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
 
   return (
     <Card className="task-card">
       <div className="task-card__header">
         <div>
           <StatusBadge status={task.status} />
-          <Badge tone="neutral">{formatTaskTypeLabel(task.type)}</Badge>
+          <Badge tone="neutral">{formatTaskTypeLabel(task.type, language)}</Badge>
           {project ? <span className="task-card__project">{project.name}</span> : null}
         </div>
         <ScorePill score={task.highValueScore} />

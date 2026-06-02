@@ -1,4 +1,5 @@
 import type { PropsWithChildren } from "react";
+import { useI18n } from "../../i18n/useI18n";
 import { cn } from "../../utils/cn";
 
 type CollapsibleSectionProps = PropsWithChildren<{
@@ -21,6 +22,8 @@ export function CollapsibleSection({
   level = 0,
   children,
 }: CollapsibleSectionProps) {
+  const { t } = useI18n();
+
   return (
     <section className={cn("collapsible-section", `collapsible-section--level-${level}`)} data-section-id={id}>
       <button
@@ -29,6 +32,9 @@ export function CollapsibleSection({
         onClick={onToggle}
         aria-expanded={!collapsed}
         aria-controls={`section-${id}`}
+        aria-label={
+          collapsed ? t("aria.expandSection", { title }) : t("aria.collapseSection", { title })
+        }
       >
         <span className="collapsible-section__chevron" aria-hidden="true">
           {collapsed ? "▸" : "▾"}

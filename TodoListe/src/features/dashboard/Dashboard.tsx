@@ -74,7 +74,7 @@ export function Dashboard({
               onFocus(nextAction.id);
             }
           }}
-          aria-label={`Focus on ${nextAction.title}`}
+          aria-label={t("aria.focusOnTask", { title: nextAction.title })}
         >
           <div>
             <p className="eyebrow">{t("dashboard.nextAction")}</p>

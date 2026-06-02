@@ -83,7 +83,7 @@ export function BackupImportPanel({ onImport }: BackupImportPanelProps) {
           type="file"
           accept="application/json,.json"
           className="backup-import__file-input"
-          aria-hidden="true"
+          aria-label={t("aria.backupFile")}
           tabIndex={-1}
           onChange={handleFileChange}
         />

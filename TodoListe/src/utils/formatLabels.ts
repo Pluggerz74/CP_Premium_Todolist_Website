@@ -8,9 +8,41 @@ export function formatStatusLabel(status: TaskStatus, language: Language = "en")
   return translate(language, "status.todo");
 }
 
-export function formatTaskTypeLabel(type: string): string {
-  if (type === "subtask") return "Subtask";
-  return type.charAt(0).toUpperCase() + type.slice(1);
+const taskTypeKeys: Record<string, TranslationKey> = {
+  task: "taskType.task",
+  subtask: "taskType.subtask",
+  bug: "taskType.bug",
+  feature: "taskType.feature",
+  research: "taskType.research",
+};
+
+export function formatTaskTypeLabel(type: string, language: Language = "en"): string {
+  const key = taskTypeKeys[type];
+  return key ? translate(language, key) : type;
+}
+
+function scoreBandKey(score: number): TranslationKey {
+  if (score >= 8) return "score.band.critical";
+  if (score >= 6) return "score.band.high";
+  if (score >= 4) return "score.band.useful";
+  if (score >= 2) return "score.band.low";
+  return "score.band.optional";
+}
+
+function scoreTooltipKey(score: number): TranslationKey {
+  if (score >= 8) return "score.tooltip.critical";
+  if (score >= 6) return "score.tooltip.high";
+  if (score >= 4) return "score.tooltip.useful";
+  if (score >= 2) return "score.tooltip.low";
+  return "score.tooltip.optional";
+}
+
+export function formatScoreLabel(score: number, language: Language = "en"): string {
+  return translate(language, scoreBandKey(score));
+}
+
+export function formatScoreTooltip(score: number, language: Language = "en"): string {
+  return translate(language, scoreTooltipKey(score));
 }
 
 export function getStatusTone(status: TaskStatus): "neutral" | "success" | "warning" {

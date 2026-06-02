@@ -12,6 +12,7 @@ import {
 import { validateHierarchySelection } from "../../utils/taskHierarchyEdit";
 import { calculateHighValueScore } from "../../utils/scoring";
 import { useI18n } from "../../i18n/useI18n";
+import { formatTaskTypeLabel } from "../../utils/formatLabels";
 import { Button } from "../../components/ui/Button";
 import { ScorePill } from "../../components/ui/ScorePill";
 
@@ -27,7 +28,7 @@ const signals: TaskPrioritySignal[] = [1, 2, 3, 4, 5];
 const taskTypes: TaskType[] = ["task", "subtask", "bug", "feature", "research"];
 
 export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: TaskEditFormProps) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description);
   const [projectId, setProjectId] = useState(task.projectId);
@@ -135,11 +136,21 @@ export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: 
 
       <label>
         {t("label.title")}
-        <input value={title} onChange={(event) => setTitle(event.target.value)} required />
+        <input
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+          placeholder={t("placeholder.taskTitle")}
+          required
+        />
       </label>
       <label>
         {t("label.description")}
-        <textarea value={description} onChange={(event) => setDescription(event.target.value)} rows={3} />
+        <textarea
+          value={description}
+          onChange={(event) => setDescription(event.target.value)}
+          placeholder={t("placeholder.taskDescription")}
+          rows={3}
+        />
       </label>
 
       <div className="form__section">
@@ -279,7 +290,7 @@ export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: 
             <select value={type} onChange={(event) => setType(event.target.value as TaskType)}>
               {taskTypes.map((option) => (
                 <option key={option} value={option}>
-                  {option}
+                  {formatTaskTypeLabel(option, language)}
                 </option>
               ))}
             </select>
@@ -347,7 +358,7 @@ export function TaskEditForm({ task, projects, hierarchy, onSubmit, onCancel }: 
         <input
           value={tagsInput}
           onChange={(event) => setTagsInput(event.target.value)}
-          placeholder="design, mvp, launch"
+          placeholder={t("placeholder.tags")}
         />
       </label>
 

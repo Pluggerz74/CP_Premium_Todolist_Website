@@ -1,4 +1,6 @@
 import type { Task } from "../types/task";
+import type { Language } from "../i18n/translations";
+import { formatScoreLabel } from "./formatLabels";
 
 export type ScoreInput = Pick<Task, "impact" | "urgency" | "effort">;
 
@@ -10,12 +12,9 @@ export function withHighValueScore<T extends ScoreInput>(task: T): T & { highVal
   return { ...task, highValueScore: calculateHighValueScore(task) };
 }
 
-export function getScoreLabel(score: number): string {
-  if (score >= 8) return "Elite leverage";
-  if (score >= 6) return "High value";
-  if (score >= 4) return "Good momentum";
-  if (score >= 2) return "Useful";
-  return "Low leverage";
+/** @deprecated Prefer formatScoreLabel(score, language) in UI code. */
+export function getScoreLabel(score: number, language: Language = "en"): string {
+  return formatScoreLabel(score, language);
 }
 
 export function sortByHighValueScore(tasks: Task[]): Task[] {

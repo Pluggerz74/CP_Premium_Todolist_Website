@@ -17,7 +17,7 @@ export function LanguageSwitch({ variant = "settings" }: LanguageSwitchProps) {
     <div
       className={variant === "compact" ? "language-switch language-switch--compact" : "language-switch"}
       role="group"
-      aria-label={t("settings.language")}
+      aria-label={t("aria.languageSwitch")}
     >
       {options.map((option) => (
         <button

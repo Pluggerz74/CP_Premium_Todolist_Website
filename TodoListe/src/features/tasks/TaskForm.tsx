@@ -5,6 +5,7 @@ import type { TaskInput, TaskPrioritySignal, TaskStatus, TaskType } from "../../
 import { getTodayIsoDate } from "../../utils/dates";
 import { getProjectAreas } from "../../utils/hierarchy";
 import { useI18n } from "../../i18n/useI18n";
+import { formatTaskTypeLabel } from "../../utils/formatLabels";
 import { Button } from "../../components/ui/Button";
 
 type TaskFormProps = {
@@ -19,7 +20,7 @@ const signals: TaskPrioritySignal[] = [1, 2, 3, 4, 5];
 const taskTypes: TaskType[] = ["task", "subtask", "bug", "feature", "research"];
 
 export function TaskForm({ projects, hierarchy, defaultProjectId, onSubmit, onCancel }: TaskFormProps) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [projectId, setProjectId] = useState(defaultProjectId ?? projects[0]?.id ?? "");
@@ -86,11 +87,19 @@ export function TaskForm({ projects, hierarchy, defaultProjectId, onSubmit, onCa
     <form className="form" onSubmit={handleSubmit}>
       <label>
         {t("form.taskTitle")}
-        <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Ship the dashboard" />
+        <input
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+          placeholder={t("placeholder.taskTitle")}
+        />
       </label>
       <label>
         {t("label.description")}
-        <textarea value={description} onChange={(event) => setDescription(event.target.value)} placeholder="What needs to happen?" />
+        <textarea
+          value={description}
+          onChange={(event) => setDescription(event.target.value)}
+          placeholder={t("placeholder.taskDescription")}
+        />
       </label>
       <label>
         {t("label.project")}
@@ -135,7 +144,7 @@ export function TaskForm({ projects, hierarchy, defaultProjectId, onSubmit, onCa
           <select value={type} onChange={(event) => setType(event.target.value as TaskType)}>
             {taskTypes.map((option) => (
               <option key={option} value={option}>
-                {option}
+                {formatTaskTypeLabel(option, language)}
               </option>
             ))}
           </select>
@@ -151,7 +160,7 @@ export function TaskForm({ projects, hierarchy, defaultProjectId, onSubmit, onCa
           <input
             value={tagsInput}
             onChange={(event) => setTagsInput(event.target.value)}
-            placeholder="design, mvp, launch"
+            placeholder={t("placeholder.tags")}
           />
         </label>
       </div>

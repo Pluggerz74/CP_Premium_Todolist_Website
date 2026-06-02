@@ -1,4 +1,5 @@
 import type { KeyboardEvent, ReactNode } from "react";
+import { useI18n } from "../../i18n/useI18n";
 import { ScorePill } from "./ScorePill";
 
 type RankedListItemProps = {
@@ -11,6 +12,7 @@ type RankedListItemProps = {
 };
 
 export function RankedListItem({ rank, title, children, score, onClick, onKeyDown }: RankedListItemProps) {
+  const { t } = useI18n();
   const interactive = Boolean(onClick);
 
   return (
@@ -30,7 +32,7 @@ export function RankedListItem({ rank, title, children, score, onClick, onKeyDow
             }
           : undefined
       }
-      aria-label={interactive ? `Open task: ${title}` : undefined}
+      aria-label={interactive ? t("aria.openTask", { title }) : undefined}
     >
       <span className="ranked-list__rank">{rank}</span>
       <div>

@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import type { Project } from "../../types/project";
 import type { Task, TaskStatus } from "../../types/task";
 import { formatDateLabel } from "../../utils/dates";
-import { getScoreLabel } from "../../utils/scoring";
 import { VIRTUAL_LIST_THRESHOLD } from "../../utils/taskIndex";
 import { useI18n } from "../../i18n/useI18n";
 import { Button } from "../../components/ui/Button";
@@ -54,7 +53,7 @@ function CompactTaskRow({
         <SelectField
           value={task.status}
           onChange={(value) => onStatusChange(task.id, value as TaskStatus)}
-          aria-label={`${t("label.status")} — ${task.title}`}
+          aria-label={t("aria.statusForTask", { title: task.title })}
           options={[
             { value: "todo", label: t("status.todo") },
             { value: "in-progress", label: t("status.inProgress") },
@@ -62,7 +61,7 @@ function CompactTaskRow({
           ]}
         />
       </span>
-      <span role="cell" title={getScoreLabel(task.highValueScore)}>
+      <span role="cell">
         <ScorePill score={task.highValueScore} compact />
       </span>
       <span role="cell">{formatDateLabel(task.dueDate)}</span>
@@ -120,7 +119,7 @@ export function CompactTaskTable({
           itemHeight={COMPACT_ROW_HEIGHT}
           maxHeight={640}
           className="compact-table__virtual"
-          ariaLabel="Task rows"
+          ariaLabel={t("aria.virtualTaskRows")}
           getItemKey={(task) => task.id}
           renderItem={(task) => (
             <CompactTaskRow

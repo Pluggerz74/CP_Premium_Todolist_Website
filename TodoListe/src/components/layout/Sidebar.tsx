@@ -74,7 +74,7 @@ export function Sidebar({
         </div>
       ) : null}
 
-      <nav className="sidebar__nav" aria-label="Primary navigation">
+      <nav className="sidebar__nav" aria-label={t("aria.navPrimary")}>
         {coreNav.map((item) => (
           <button
             key={item.value}
@@ -90,7 +90,7 @@ export function Sidebar({
         ))}
       </nav>
 
-      <nav className="sidebar__nav sidebar__nav--secondary" aria-label="Mode navigation">
+      <nav className="sidebar__nav sidebar__nav--secondary" aria-label={t("aria.navMode")}>
         <p className="sidebar__section-title">{t("nav.modeViews")}</p>
         {modeNav.map((item) => (
           <button
@@ -117,7 +117,7 @@ export function Sidebar({
         </button>
       </nav>
 
-      <section className="sidebar__projects" aria-label="Projects">
+      <section className="sidebar__projects" aria-label={t("aria.projectList")}>
         <div className="sidebar__section-title">
           <span>{t("nav.projects")}</span>
           <Button variant="ghost" onClick={onNewProject} aria-label={t("modal.createProject")}>

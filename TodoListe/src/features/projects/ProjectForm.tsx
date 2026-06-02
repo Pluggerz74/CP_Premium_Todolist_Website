@@ -39,7 +39,11 @@ export function ProjectForm({ onSubmit, onCancel }: ProjectFormProps) {
     <form className="form" onSubmit={handleSubmit}>
       <label>
         {t("form.projectName")}
-        <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Echo Realms" />
+        <input
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          placeholder={t("placeholder.projectName")}
+        />
       </label>
       <label>
         {t("form.template")}
@@ -65,12 +69,16 @@ export function ProjectForm({ onSubmit, onCancel }: ProjectFormProps) {
         <textarea
           value={description}
           onChange={(event) => setDescription(event.target.value)}
-          placeholder="What is this project about?"
+          placeholder={t("placeholder.projectDescription")}
         />
       </label>
       <label>
         {t("form.goal")}
-        <input value={goal} onChange={(event) => setGoal(event.target.value)} placeholder="What does success look like?" />
+        <input
+          value={goal}
+          onChange={(event) => setGoal(event.target.value)}
+          placeholder={t("placeholder.projectGoal")}
+        />
       </label>
       <div className="form__actions">
         <Button type="button" variant="secondary" onClick={onCancel}>
