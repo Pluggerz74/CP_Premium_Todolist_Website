@@ -1,3 +1,4 @@
+import type { Language } from "../i18n/translations";
 import type { ProjectComplexityMode } from "./project";
 
 export type ViewDensity = "comfortable" | "compact";
@@ -5,6 +6,7 @@ export type ViewDensity = "comfortable" | "compact";
 export type AppSettings = {
   complexityMode: ProjectComplexityMode;
   viewDensity: ViewDensity;
+  language: Language;
   collapsedSections: Record<string, boolean>;
 };
 

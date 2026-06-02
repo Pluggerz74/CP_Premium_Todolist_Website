@@ -84,7 +84,10 @@ export function resetToDemoData(): void {
   writeStorage(storageKeys.tasks, demoTasks);
   writeStorage(storageKeys.hierarchy, demoHierarchy);
   writeStorage(storageKeys.taskFilters, defaultTaskFilters);
-  writeStorage(storageKeys.appSettings, migrateAppSettings({ complexityMode: "simple", viewDensity: "comfortable", collapsedSections: {} }));
+  writeStorage(
+    storageKeys.appSettings,
+    migrateAppSettings({ complexityMode: "simple", viewDensity: "comfortable", language: "en", collapsedSections: {} }),
+  );
   writeStorageMeta({ lastRecoveryAt: new Date().toISOString(), lastError: null });
   recordStorageSuccess();
 }

@@ -2,7 +2,9 @@ import { FormEvent, useMemo, useState } from "react";
 import type { Project } from "../../types/project";
 import type { TaskInput, TaskPrioritySignal } from "../../types/task";
 import { getTodayIsoDate } from "../../utils/dates";
+import { useI18n } from "../../i18n/useI18n";
 import { Button } from "../../components/ui/Button";
+import { SelectField } from "../../components/ui/SelectField";
 
 type QuickAddFormProps = {
   projects: Project[];
@@ -14,6 +16,7 @@ type QuickAddFormProps = {
 const priorities: TaskPrioritySignal[] = [1, 2, 3, 4, 5];
 
 export function QuickAddForm({ projects, defaultProjectId, onSubmit, onCancel }: QuickAddFormProps) {
+  const { t } = useI18n();
   const simpleProjects = useMemo(
     () => projects.filter((project) => project.complexityMode === "simple"),
     [projects],
@@ -67,59 +70,59 @@ export function QuickAddForm({ projects, defaultProjectId, onSubmit, onCancel }:
     setTitle("");
   }
 
+  const priorityOptions = priorities.map((value) => ({
+    value: String(value),
+    label: `${value} — ${
+      value >= 4 ? t("priority.high") : value >= 3 ? t("priority.medium") : t("priority.low")
+    }`,
+  }));
+
   return (
     <form className="form form--quick" onSubmit={handleSubmit}>
-      <p className="form__hint">Add a personal todo in seconds. Press Enter to save.</p>
+      <p className="form__hint">{t("quickAdd.hint")}</p>
       <label>
-        Task title
+        {t("form.taskTitle")}
         <input
           value={title}
           onChange={(event) => setTitle(event.target.value)}
-          placeholder="What needs doing?"
+          placeholder={t("quickAdd.titlePlaceholder")}
           autoFocus
         />
       </label>
       <div className="form__grid">
         <label>
-          Project / list
-          <select value={projectId} onChange={(event) => setProjectId(event.target.value)}>
-            {projectOptions.map((project) => (
-              <option key={project.id} value={project.id}>
-                {project.name}
-              </option>
-            ))}
-          </select>
+          {t("label.list")}
+          <SelectField
+            value={projectId}
+            onChange={setProjectId}
+            options={projectOptions.map((project) => ({ value: project.id, label: project.name }))}
+          />
         </label>
         <label>
-          Priority
-          <select
-            value={priority}
-            onChange={(event) => setPriority(Number(event.target.value) as TaskPrioritySignal)}
-          >
-            {priorities.map((value) => (
-              <option key={value} value={value}>
-                {value} — {value >= 4 ? "High" : value >= 3 ? "Medium" : "Low"}
-              </option>
-            ))}
-          </select>
+          {t("label.priority")}
+          <SelectField
+            value={String(priority)}
+            onChange={(value) => setPriority(Number(value) as TaskPrioritySignal)}
+            options={priorityOptions}
+          />
         </label>
       </div>
       <label className="form__checkbox">
         <input type="checkbox" checked={useDueDate} onChange={(event) => setUseDueDate(event.target.checked)} />
-        Set due date
+        {t("quickAdd.setDueDate")}
       </label>
       {useDueDate ? (
         <label>
-          Due date
+          {t("label.dueDate")}
           <input type="date" value={dueDate} onChange={(event) => setDueDate(event.target.value)} />
         </label>
       ) : null}
       <div className="form__actions">
         <Button type="button" variant="secondary" onClick={onCancel}>
-          Cancel
+          {t("btn.cancel")}
         </Button>
         <Button type="submit" disabled={!title.trim()}>
-          Add task
+          {t("btn.addTask")}
         </Button>
       </div>
     </form>

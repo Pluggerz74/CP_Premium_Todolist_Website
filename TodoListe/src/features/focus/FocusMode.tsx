@@ -8,6 +8,7 @@ import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { ScorePill } from "../../components/ui/ScorePill";
+import { useI18n } from "../../i18n/useI18n";
 import { TaskMetadata } from "../../components/ui/TaskMetadata";
 
 type FocusModeProps = {
@@ -19,14 +20,16 @@ type FocusModeProps = {
 };
 
 export function FocusMode({ task, project, hierarchy, onStatusChange, onEdit }: FocusModeProps) {
+  const { t } = useI18n();
+
   if (!task) {
     return (
       <div className="focus-view">
         <EmptyState
           variant="subtle"
           icon="◎"
-          title="No focus task selected"
-          description="Choose Focus on a task to enter a clean execution view for your highest-value next action."
+          title={t("focus.empty")}
+          description={t("focus.emptyHint")}
         />
       </div>
     );
@@ -38,7 +41,7 @@ export function FocusMode({ task, project, hierarchy, onStatusChange, onEdit }: 
     <div className="focus-view">
       <Card className="focus-card">
         <div className="focus-card__top">
-          <Badge tone="premium">Focus mode</Badge>
+          <Badge tone="premium">{t("focus.badge")}</Badge>
           <ScorePill score={task.highValueScore} />
         </div>
         {breadcrumbs.length > 0 ? <Breadcrumbs items={breadcrumbs} /> : null}
@@ -55,12 +58,12 @@ export function FocusMode({ task, project, hierarchy, onStatusChange, onEdit }: 
         <div className="focus-card__actions">
           {onEdit ? (
             <Button variant="secondary" onClick={() => onEdit(task.id)}>
-              Edit task
+              {t("btn.editTask")}
             </Button>
           ) : null}
-          <Button onClick={() => onStatusChange(task.id, "in-progress")}>Start now</Button>
+          <Button onClick={() => onStatusChange(task.id, "in-progress")}>{t("btn.startNow")}</Button>
           <Button variant="secondary" onClick={() => onStatusChange(task.id, "done")}>
-            Mark done
+            {t("btn.markDone")}
           </Button>
         </div>
       </Card>

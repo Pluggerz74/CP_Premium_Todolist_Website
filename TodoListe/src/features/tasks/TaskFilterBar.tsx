@@ -1,11 +1,14 @@
+import { useState } from "react";
 import type { TaskFilterState } from "../../types/appSettings";
 import type { ProjectHierarchyStore } from "../../types/hierarchy";
 import type { Project } from "../../types/project";
 import type { ViewDensity } from "../../types/appSettings";
 import type { TaskIndex } from "../../utils/taskIndex";
+import { getProjectAreas } from "../../utils/hierarchy";
+import { useI18n } from "../../i18n/useI18n";
 import { Button } from "../../components/ui/Button";
 import { SearchInput } from "../../components/ui/SearchInput";
-import { getProjectAreas } from "../../utils/hierarchy";
+import { SelectField } from "../../components/ui/SelectField";
 
 type TaskFilterBarProps = {
   filters: TaskFilterState;
@@ -28,6 +31,7 @@ export function TaskFilterBar({
   onReset,
   onDensityChange,
 }: TaskFilterBarProps) {
+  const { t } = useI18n();
   const tags = taskIndex.allTags;
   const areas = filters.projectId ? getProjectAreas(hierarchy, filters.projectId) : [];
   const milestones = filters.areaId
@@ -37,135 +41,121 @@ export function TaskFilterBar({
   return (
     <div className="filter-bar card">
       <div className="filter-bar__row">
-        <SearchInput value={filters.searchQuery} onChange={(searchQuery) => onFiltersChange({ searchQuery })} />
+        <SearchInput
+          value={filters.searchQuery}
+          onChange={(searchQuery) => onFiltersChange({ searchQuery })}
+          placeholder={t("label.search")}
+        />
         <div className="filter-bar__density">
           <button
             type="button"
             className={viewDensity === "comfortable" ? "density-toggle is-active" : "density-toggle"}
             onClick={() => onDensityChange("comfortable")}
           >
-            Comfortable
+            {t("density.comfortable")}
           </button>
           <button
             type="button"
             className={viewDensity === "compact" ? "density-toggle is-active" : "density-toggle"}
             onClick={() => onDensityChange("compact")}
           >
-            Compact
+            {t("density.compact")}
           </button>
         </div>
       </div>
 
       <div className="filter-bar__grid">
         <label>
-          Project
-          <select
+          {t("filter.project")}
+          <SelectField
             value={filters.projectId ?? ""}
-            onChange={(event) =>
+            onChange={(value) =>
               onFiltersChange({
-                projectId: event.target.value || null,
+                projectId: value || null,
                 areaId: null,
                 milestoneId: null,
               })
             }
-          >
-            <option value="">All projects</option>
-            {projects.map((project) => (
-              <option key={project.id} value={project.id}>
-                {project.name}
-              </option>
-            ))}
-          </select>
+            options={[
+              { value: "", label: t("filter.allProjects") },
+              ...projects.map((project) => ({ value: project.id, label: project.name })),
+            ]}
+          />
         </label>
 
         <label>
-          Area
-          <select
+          {t("filter.area")}
+          <SelectField
             value={filters.areaId ?? ""}
-            onChange={(event) =>
+            onChange={(value) =>
               onFiltersChange({
-                areaId: event.target.value || null,
+                areaId: value || null,
                 milestoneId: null,
               })
             }
             disabled={!filters.projectId}
-          >
-            <option value="">All areas</option>
-            {areas.map((area) => (
-              <option key={area.id} value={area.id}>
-                {area.title}
-              </option>
-            ))}
-          </select>
+            options={[
+              { value: "", label: t("filter.allAreas") },
+              ...areas.map((area) => ({ value: area.id, label: area.title })),
+            ]}
+          />
         </label>
 
         <label>
-          Milestone
-          <select
+          {t("filter.milestone")}
+          <SelectField
             value={filters.milestoneId ?? ""}
-            onChange={(event) => onFiltersChange({ milestoneId: event.target.value || null })}
+            onChange={(value) => onFiltersChange({ milestoneId: value || null })}
             disabled={!filters.areaId}
-          >
-            <option value="">All milestones</option>
-            {milestones.map((milestone) => (
-              <option key={milestone.id} value={milestone.id}>
-                {milestone.title}
-              </option>
-            ))}
-          </select>
+            options={[
+              { value: "", label: t("filter.allMilestones") },
+              ...milestones.map((milestone) => ({ value: milestone.id, label: milestone.title })),
+            ]}
+          />
         </label>
 
         <label>
-          Status
-          <select
+          {t("label.status")}
+          <SelectField
             value={filters.status}
-            onChange={(event) =>
-              onFiltersChange({ status: event.target.value as TaskFilterState["status"] })
-            }
-          >
-            <option value="all">All statuses</option>
-            <option value="todo">Todo</option>
-            <option value="in-progress">In progress</option>
-            <option value="done">Done</option>
-          </select>
+            onChange={(value) => onFiltersChange({ status: value as TaskFilterState["status"] })}
+            options={[
+              { value: "all", label: t("status.all") },
+              { value: "todo", label: t("status.todo") },
+              { value: "in-progress", label: t("status.inProgress") },
+              { value: "done", label: t("status.done") },
+            ]}
+          />
         </label>
 
         <label>
-          Tag
-          <select
+          {t("filter.tag")}
+          <SelectField
             value={filters.tag ?? ""}
-            onChange={(event) => onFiltersChange({ tag: event.target.value || null })}
-          >
-            <option value="">All tags</option>
-            {tags.map((tag) => (
-              <option key={tag} value={tag}>
-                {tag}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => onFiltersChange({ tag: value || null })}
+            options={[
+              { value: "", label: t("filter.allTags") },
+              ...tags.map((tag) => ({ value: tag, label: tag })),
+            ]}
+          />
         </label>
 
         <label>
-          Min score
-          <select
-            value={filters.minScore ?? ""}
-            onChange={(event) =>
-              onFiltersChange({ minScore: event.target.value ? Number(event.target.value) : null })
-            }
-          >
-            <option value="">Any score</option>
-            {[2, 4, 6, 8].map((score) => (
-              <option key={score} value={score}>
-                {score}+
-              </option>
-            ))}
-          </select>
+          {t("filter.minScore")}
+          <SelectField
+            value={filters.minScore !== null ? String(filters.minScore) : ""}
+            onChange={(value) => onFiltersChange({ minScore: value ? Number(value) : null })}
+            options={[
+              { value: "", label: t("filter.anyScore") },
+              ...[2, 4, 6, 8].map((score) => ({ value: String(score), label: `${score}+` })),
+            ]}
+          />
         </label>
       </div>
 
       <div className="filter-bar__actions">
         <Button variant="ghost" onClick={onReset}>
-          Reset filters
+          {t("btn.resetFilters")}
         </Button>
       </div>
     </div>

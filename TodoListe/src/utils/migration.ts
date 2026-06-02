@@ -172,9 +172,11 @@ export function migrateAppSettings(settings: unknown): AppSettings {
   const value = settings as Partial<AppSettings> | null;
   const complexityMode = value?.complexityMode;
   const viewDensity = value?.viewDensity;
+  const language = value?.language;
   return {
     complexityMode: complexityMode === "complex" ? "complex" : "simple",
     viewDensity: viewDensity === "compact" ? "compact" : "comfortable",
+    language: language === "de" ? "de" : "en",
     collapsedSections:
       value?.collapsedSections && typeof value.collapsedSections === "object"
         ? value.collapsedSections

@@ -3,6 +3,7 @@ import type { Project } from "../../types/project";
 import type { Task, TaskStatus } from "../../types/task";
 import { formatDateLabel, isToday, isUpcoming } from "../../utils/dates";
 import { getNextBestAction, getOpenTasks } from "../../utils/selectors";
+import { useI18n } from "../../i18n/useI18n";
 import { StatCard } from "../../components/ui/StatCard";
 import { ModeBadge } from "../../components/ui/ModeBadge";
 import { ScorePill } from "../../components/ui/ScorePill";
@@ -30,6 +31,7 @@ export function Dashboard({
   onFocus,
   onEdit,
 }: DashboardProps) {
+  const { t } = useI18n();
   const openTasks = getOpenTasks(allTasks);
   const todayTasks = openTasks.filter((task) => isToday(task.dueDate));
   const upcomingTasks = openTasks.filter((task) => isUpcoming(task.dueDate));
@@ -85,7 +87,7 @@ export function Dashboard({
                 onEdit(nextAction.id);
               }}
             >
-              Edit
+              {t("btn.edit")}
             </button>
             <button
               type="button"
@@ -95,7 +97,7 @@ export function Dashboard({
                 onFocus(nextAction.id);
               }}
             >
-              Enter focus
+              {t("btn.enterFocus")}
             </button>
           </div>
         </section>

@@ -12,14 +12,17 @@ import { ProjectMap } from "./features/projects/ProjectMap";
 import { ProjectOverview } from "./features/projects/ProjectOverview";
 import { ProjectsPanel } from "./features/projects/ProjectsPanel";
 import { SearchPanel } from "./features/projects/SearchPanel";
-import { SimpleListPanel } from "./features/projects/SimpleListPanel";
+import { SimpleBoardPanel } from "./features/projects/SimpleBoardPanel";
 import { SettingsPanel } from "./features/settings/SettingsPanel";
 import { TaskFilterBar } from "./features/tasks/TaskFilterBar";
-import { getViewEyebrow, getViewTitle } from "./features/tasks/TaskFilters";
+import { SimpleFilterBar } from "./features/tasks/SimpleFilterBar";
+import { getViewEyebrowKey, getViewTitleKey } from "./features/tasks/TaskFilters";
 import { TaskForm } from "./features/tasks/TaskForm";
 import { TaskEditForm } from "./features/tasks/TaskEditForm";
 import { QuickAddForm } from "./features/tasks/QuickAddForm";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
+import { I18nProvider } from "./i18n/I18nProvider";
+import { translate } from "./i18n/translations";
 import { useAppSettings } from "./hooks/useAppSettings";
 import { useHierarchy } from "./hooks/useHierarchy";
 import { useProjects } from "./hooks/useProjects";
@@ -58,6 +61,7 @@ export function App({ storageInit }: AppProps) {
     filters,
     setComplexityMode,
     setViewDensity,
+    setLanguage,
     toggleSectionCollapsed,
     updateFilters,
     resetFilters,
@@ -103,6 +107,10 @@ export function App({ storageInit }: AppProps) {
   const showFilterBar = ["dashboard", "high-value", "backlog", "search", "simple-list", "today", "upcoming"].includes(
     activeView,
   );
+  const showSimpleFilterBar =
+    settings.complexityMode === "simple" &&
+    ["simple-list", "today", "upcoming", "dashboard"].includes(activeView);
+  const showComplexFilterBar = showFilterBar && !showSimpleFilterBar;
 
   const storageWarnings = storageInit?.warnings ?? [];
 
@@ -345,16 +353,13 @@ export function App({ storageInit }: AppProps) {
 
     if (activeView === "simple-list") {
       return (
-        <SimpleListPanel
-          projects={projects}
+        <SimpleBoardPanel
           tasks={filteredTasks}
           taskIndex={taskIndex}
           projectMap={projectMap}
-          viewDensity={settings.viewDensity}
           onStatusChange={handleStatusChange}
-          onDelete={deleteTask}
-          onFocus={handleFocus}
           onEdit={handleEditTask}
+          onFocus={handleFocus}
           onQuickAdd={() => setQuickAddOpen(true)}
         />
       );
@@ -375,7 +380,8 @@ export function App({ storageInit }: AppProps) {
   }
 
   return (
-    <>
+    <I18nProvider language={settings.language} setLanguage={setLanguage}>
+      <>
       <AppShell
         projects={projects}
         activeView={activeView}
@@ -404,13 +410,22 @@ export function App({ storageInit }: AppProps) {
 
         <div className="view-title">
           <p className="eyebrow">
-            {getViewEyebrow(activeView, settings.complexityMode)}
+            {translate(settings.language, getViewEyebrowKey(activeView, settings.complexityMode))}
             {selectedProject ? ` · ${selectedProject.name}` : ""}
           </p>
-          <h2>{getViewTitle(activeView)}</h2>
+          <h2>{translate(settings.language, getViewTitleKey(activeView))}</h2>
         </div>
 
-        {showFilterBar ? (
+        {showSimpleFilterBar ? (
+          <SimpleFilterBar
+            filters={filters}
+            projects={projects}
+            onFiltersChange={updateFilters}
+            onReset={resetFilters}
+          />
+        ) : null}
+
+        {showComplexFilterBar ? (
           <TaskFilterBar
             filters={filters}
             projects={projects}
@@ -426,7 +441,7 @@ export function App({ storageInit }: AppProps) {
         {renderContent()}
       </AppShell>
 
-      <Modal title="Create high-value task" isOpen={isTaskModalOpen} onClose={() => setTaskModalOpen(false)}>
+      <Modal title={translate(settings.language, "modal.createTask")} isOpen={isTaskModalOpen} onClose={() => setTaskModalOpen(false)}>
         <TaskForm
           projects={projects}
           hierarchy={hierarchy}
@@ -436,7 +451,7 @@ export function App({ storageInit }: AppProps) {
         />
       </Modal>
 
-      <Modal title="Quick add" isOpen={isQuickAddOpen} onClose={() => setQuickAddOpen(false)}>
+      <Modal title={translate(settings.language, "modal.quickAdd")} isOpen={isQuickAddOpen} onClose={() => setQuickAddOpen(false)}>
         <QuickAddForm
           projects={projects}
           defaultProjectId={selectedProjectId}
@@ -446,7 +461,7 @@ export function App({ storageInit }: AppProps) {
       </Modal>
 
       <Modal
-        title="Edit task"
+        title={translate(settings.language, "modal.editTask")}
         isOpen={editingTask !== null}
         onClose={() => setEditingTask(null)}
       >
@@ -461,9 +476,10 @@ export function App({ storageInit }: AppProps) {
         ) : null}
       </Modal>
 
-      <Modal title="Create project" isOpen={isProjectModalOpen} onClose={() => setProjectModalOpen(false)}>
+      <Modal title={translate(settings.language, "modal.createProject")} isOpen={isProjectModalOpen} onClose={() => setProjectModalOpen(false)}>
         <ProjectForm onSubmit={handleProjectSubmit} onCancel={() => setProjectModalOpen(false)} />
       </Modal>
-    </>
+      </>
+    </I18nProvider>
   );
 }

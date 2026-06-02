@@ -1,5 +1,5 @@
 import type { RefObject } from "react";
-import { appConfig } from "../../config/app";
+import { useI18n } from "../../i18n/useI18n";
 import { Button } from "../ui/Button";
 import { SearchInput } from "../ui/SearchInput";
 
@@ -12,24 +12,26 @@ type TopBarProps = {
 };
 
 export function TopBar({ searchQuery, onSearchChange, onNewTask, onQuickAdd, searchInputRef }: TopBarProps) {
+  const { t } = useI18n();
+
   return (
     <header className="topbar">
       <div>
-        <p className="eyebrow">Project command center</p>
-        <h1>{appConfig.tagline}</h1>
+        <p className="eyebrow">{t("app.tagline")}</p>
+        <h1>{t("app.headline")}</h1>
       </div>
       <div className="topbar__actions">
         <SearchInput
           variant="toolbar"
           value={searchQuery}
           onChange={onSearchChange}
-          placeholder="Quick search tasks..."
+          placeholder={t("label.search")}
           inputRef={searchInputRef}
         />
         <Button variant="secondary" onClick={onQuickAdd}>
-          Quick Add
+          {t("btn.quickAdd")}
         </Button>
-        <Button onClick={onNewTask}>New Task</Button>
+        <Button onClick={onNewTask}>{t("btn.newTask")}</Button>
       </div>
     </header>
   );

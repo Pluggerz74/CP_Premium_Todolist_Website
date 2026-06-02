@@ -3,9 +3,11 @@ import type { ThemeMode } from "../../types/theme";
 import type { AppSettings } from "../../types/appSettings";
 import type { AppDataSnapshot } from "../../utils/dataBackup";
 import { readStorageMeta } from "../../utils/storageMigration";
+import { useI18n } from "../../i18n/useI18n";
 import { Card } from "../../components/ui/Card";
 import { ThemeToggle } from "../../components/ui/ThemeToggle";
 import { ModeBadge } from "../../components/ui/ModeBadge";
+import { LanguageSwitch } from "../../components/ui/LanguageSwitch";
 import { Button } from "../../components/ui/Button";
 import { BackupImportPanel } from "./BackupImportPanel";
 
@@ -30,32 +32,37 @@ export function SettingsPanel({
   onLoadScaleTestData,
   onImportBackup,
 }: SettingsPanelProps) {
+  const { t } = useI18n();
   const storageMeta = readStorageMeta();
 
   return (
     <section className="section-block settings-panel">
       <div className="section-heading">
-        <p className="eyebrow">Settings</p>
-        <h2>Workspace preferences</h2>
-        <p className="settings-panel__intro">
-          Tune appearance, planning density, and local data safety without leaving your workflow.
-        </p>
+        <p className="eyebrow">{t("nav.settings")}</p>
+        <h2>{t("settings.title")}</h2>
+        <p className="settings-panel__intro">{t("settings.intro")}</p>
       </div>
 
       <Card className="settings-card">
         <div>
-          <h3>Appearance</h3>
-          <p>Switch between calm dark mode and clean light mode.</p>
+          <h3>{t("settings.language")}</h3>
+          <p>{t("settings.languageHint")}</p>
+        </div>
+        <LanguageSwitch />
+      </Card>
+
+      <Card className="settings-card">
+        <div>
+          <h3>{t("settings.appearance")}</h3>
+          <p>{t("settings.appearanceHint")}</p>
         </div>
         <ThemeToggle theme={theme} onToggle={onToggleTheme} />
       </Card>
 
       <Card className="settings-card">
         <div>
-          <h3>Project mode</h3>
-          <p>
-            Simple Mode keeps everyday todos fast. Complex Mode unlocks hierarchy, project maps, and backlog planning for massive projects.
-          </p>
+          <h3>{t("settings.projectMode")}</h3>
+          <p>{t("settings.projectModeHint")}</p>
           <ModeBadge mode={settings.complexityMode} />
         </div>
         <div className="settings-card__actions">
@@ -63,53 +70,51 @@ export function SettingsPanel({
             variant={settings.complexityMode === "simple" ? "primary" : "secondary"}
             onClick={() => onComplexityModeChange("simple")}
           >
-            Simple Mode
+            {t("mode.simple")}
           </Button>
           <Button
             variant={settings.complexityMode === "complex" ? "primary" : "secondary"}
             onClick={() => onComplexityModeChange("complex")}
           >
-            Complex Mode
+            {t("mode.complex")}
           </Button>
         </div>
       </Card>
 
       <Card className="settings-card">
         <div>
-          <h3>List density</h3>
-          <p>Use compact rows when planning large projects with hundreds of tasks.</p>
+          <h3>{t("settings.density")}</h3>
+          <p>{t("settings.densityHint")}</p>
         </div>
         <div className="settings-card__actions">
           <Button
             variant={settings.viewDensity === "comfortable" ? "primary" : "secondary"}
             onClick={() => onDensityChange("comfortable")}
           >
-            Comfortable
+            {t("density.comfortable")}
           </Button>
           <Button
             variant={settings.viewDensity === "compact" ? "primary" : "secondary"}
             onClick={() => onDensityChange("compact")}
           >
-            Compact
+            {t("density.compact")}
           </Button>
         </div>
       </Card>
 
       <Card className="settings-card settings-card--persistence">
         <div>
-          <h3>Storage & backup</h3>
+          <h3>{t("settings.storage")}</h3>
           <p>
-            Schema v{STORAGE_VERSION} with defensive parsing, migration, and debounced writes.
-            {storageMeta.lastError ? ` Last write issue: ${storageMeta.lastError}` : " Your data stays on this device."}
+            Schema v{STORAGE_VERSION}
+            {storageMeta.lastError ? ` — ${storageMeta.lastError}` : ""}
           </p>
         </div>
-        {onImportBackup ? (
-          <BackupImportPanel onImport={onImportBackup} />
-        ) : null}
+        {onImportBackup ? <BackupImportPanel onImport={onImportBackup} /> : null}
         <div className="settings-card__actions">
           {onResetDemoData ? (
             <Button variant="secondary" onClick={onResetDemoData}>
-              Reload demo data
+              {t("btn.reloadDemo")}
             </Button>
           ) : null}
         </div>
@@ -117,18 +122,18 @@ export function SettingsPanel({
 
       <Card className="settings-card">
         <div>
-          <h3>Keyboard shortcuts</h3>
-          <p>Lightweight shortcuts when you are not typing in a field.</p>
+          <h3>{t("settings.shortcuts")}</h3>
+          <p>{t("settings.shortcutsHint")}</p>
         </div>
         <ul className="settings-shortcuts">
           <li>
-            <kbd>/</kbd> Focus search
+            <kbd>/</kbd> {t("shortcut.focusSearch")}
           </li>
           <li>
-            <kbd>n</kbd> Quick Add task
+            <kbd>n</kbd> {t("shortcut.quickAdd")}
           </li>
           <li>
-            <kbd>Esc</kbd> Close modal
+            <kbd>Esc</kbd> {t("shortcut.closeModal")}
           </li>
         </ul>
       </Card>
@@ -137,10 +142,7 @@ export function SettingsPanel({
         <Card className="settings-card settings-card--dev">
           <div>
             <h3>Development scale test</h3>
-            <p>
-              Load ~1,200 generated tasks on top of demo data to stress-test lists, search, filters, and
-              virtualization. Use Reload demo data to restore the normal seed.
-            </p>
+            <p>Load ~1,200 generated tasks for stress-testing. Use {t("btn.reloadDemo")} to restore.</p>
           </div>
           <div className="settings-card__actions">
             <Button variant="secondary" onClick={onLoadScaleTestData}>

@@ -1,5 +1,6 @@
 import type { Task } from "../../types/task";
 import { formatDateLabel, getDueDateTone } from "../../utils/dates";
+import { useI18n } from "../../i18n/useI18n";
 import { cn } from "../../utils/cn";
 import { PriorityBadge } from "./PriorityBadge";
 import { ScoreBreakdown } from "./ScoreBreakdown";
@@ -24,6 +25,10 @@ export function TaskMetadata({
   showDueDate = true,
   className,
 }: TaskMetadataProps) {
+  const { t } = useI18n();
+  const dueTone = getDueDateTone(task.dueDate);
+  const dueClass = dueTone !== "none" ? `task-metadata__due--${dueTone}` : "";
+
   if (variant === "focus") {
     return (
       <div className={cn("task-metadata", "task-metadata--focus", className)}>
@@ -37,9 +42,6 @@ export function TaskMetadata({
     );
   }
 
-  const dueTone = getDueDateTone(task.dueDate);
-  const dueClass = dueTone !== "none" ? `task-metadata__due--${dueTone}` : "";
-
   if (variant === "inline") {
     return (
       <div className={cn("task-metadata", "task-metadata--inline", className)}>
@@ -47,7 +49,7 @@ export function TaskMetadata({
         <PriorityBadge priority={task.priority} />
         {showDueDate ? (
           <span className={cn("task-metadata__due", dueClass)}>
-            {dueTone === "overdue" ? "Overdue" : dueTone === "today" ? "Today" : "Due"}{" "}
+            {dueTone === "overdue" ? t("due.overdue") : dueTone === "today" ? t("due.today") : t("due.due")}{" "}
             {formatDateLabel(task.dueDate)}
           </span>
         ) : null}

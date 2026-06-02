@@ -1,10 +1,12 @@
 import type { Project } from "../../types/project";
 import type { Task, TaskStatus } from "../../types/task";
 import { formatTaskTypeLabel } from "../../utils/formatLabels";
+import { useI18n } from "../../i18n/useI18n";
 import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { ScorePill } from "../../components/ui/ScorePill";
+import { SelectField } from "../../components/ui/SelectField";
 import { StatusBadge } from "../../components/ui/StatusBadge";
 import { TagChips } from "../../components/ui/TagChips";
 import { TaskMetadata } from "../../components/ui/TaskMetadata";
@@ -19,6 +21,8 @@ type TaskCardProps = {
 };
 
 export function TaskCard({ task, project, onStatusChange, onDelete, onFocus, onEdit }: TaskCardProps) {
+  const { t } = useI18n();
+
   return (
     <Card className="task-card">
       <div className="task-card__header">
@@ -40,23 +44,24 @@ export function TaskCard({ task, project, onStatusChange, onDelete, onFocus, onE
       <div className="task-card__actions">
         {onEdit ? (
           <Button variant="secondary" onClick={() => onEdit(task.id)}>
-            Edit
+            {t("btn.edit")}
           </Button>
         ) : null}
         <Button variant="secondary" onClick={() => onFocus(task.id)}>
-          Focus
+          {t("btn.focus")}
         </Button>
-        <select
+        <SelectField
           value={task.status}
-          onChange={(event) => onStatusChange(task.id, event.target.value as TaskStatus)}
-          aria-label="Task status"
-        >
-          <option value="todo">Todo</option>
-          <option value="in-progress">In progress</option>
-          <option value="done">Done</option>
-        </select>
+          onChange={(value) => onStatusChange(task.id, value as TaskStatus)}
+          aria-label={t("label.status")}
+          options={[
+            { value: "todo", label: t("status.todo") },
+            { value: "in-progress", label: t("status.inProgress") },
+            { value: "done", label: t("status.done") },
+          ]}
+        />
         <Button variant="danger" onClick={() => onDelete(task.id)}>
-          Delete
+          {t("btn.delete")}
         </Button>
       </div>
     </Card>

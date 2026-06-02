@@ -4,7 +4,9 @@ import type { Task, TaskStatus } from "../../types/task";
 import { formatDateLabel } from "../../utils/dates";
 import { getScoreLabel } from "../../utils/scoring";
 import { VIRTUAL_LIST_THRESHOLD } from "../../utils/taskIndex";
+import { useI18n } from "../../i18n/useI18n";
 import { Button } from "../../components/ui/Button";
+import { SelectField } from "../../components/ui/SelectField";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { ScorePill } from "../../components/ui/ScorePill";
 import { TagChips } from "../../components/ui/TagChips";
@@ -37,6 +39,8 @@ function CompactTaskRow({
   onFocus: (taskId: string) => void;
   onEdit?: (taskId: string) => void;
 }) {
+  const { t } = useI18n();
+
   return (
     <div className="compact-table__row" role="row">
       <div className="compact-table__title" role="cell">
@@ -47,15 +51,16 @@ function CompactTaskRow({
       </div>
       <span role="cell">{project?.name ?? "—"}</span>
       <span role="cell">
-        <select
+        <SelectField
           value={task.status}
-          onChange={(event) => onStatusChange(task.id, event.target.value as TaskStatus)}
-          aria-label={`Status for ${task.title}`}
-        >
-          <option value="todo">Todo</option>
-          <option value="in-progress">In progress</option>
-          <option value="done">Done</option>
-        </select>
+          onChange={(value) => onStatusChange(task.id, value as TaskStatus)}
+          aria-label={`${t("label.status")} — ${task.title}`}
+          options={[
+            { value: "todo", label: t("status.todo") },
+            { value: "in-progress", label: t("status.inProgress") },
+            { value: "done", label: t("status.done") },
+          ]}
+        />
       </span>
       <span role="cell" title={getScoreLabel(task.highValueScore)}>
         <ScorePill score={task.highValueScore} compact />
@@ -64,14 +69,14 @@ function CompactTaskRow({
       <span className="compact-table__actions" role="cell">
         {onEdit ? (
           <Button variant="ghost" onClick={() => onEdit(task.id)}>
-            Edit
+            {t("btn.edit")}
           </Button>
         ) : null}
         <Button variant="ghost" onClick={() => onFocus(task.id)}>
-          Focus
+          {t("btn.focus")}
         </Button>
         <Button variant="danger" onClick={() => onDelete(task.id)}>
-          Delete
+          {t("btn.delete")}
         </Button>
       </span>
     </div>

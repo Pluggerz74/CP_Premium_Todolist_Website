@@ -95,4 +95,17 @@
     justify-self: start;
     margin-top: var(--space-2);
   }
+
+  .filter-bar--simple .filter-bar__row {
+    grid-template-columns: 1fr;
+  }
+
+  .simple-task-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .simple-task-card__actions {
+    justify-content: flex-end;
+  }
 }
