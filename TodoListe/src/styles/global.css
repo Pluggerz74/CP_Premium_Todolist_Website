@@ -935,6 +935,14 @@ textarea {
   font-size: 0.72rem;
 }
 
+.topbar--simple {
+  justify-content: flex-end;
+}
+
+.topbar--simple .topbar__actions {
+  width: 100%;
+}
+
 .topbar__actions {
   display: flex;
   align-items: center;
@@ -1815,7 +1823,8 @@ textarea {
   padding: 0 var(--space-2);
   cursor: pointer;
   border-radius: var(--radius-sm);
-  min-width: 2rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
 }
 
 .sidebar__project-menu-trigger:hover,
@@ -1831,7 +1840,7 @@ textarea {
   right: 0;
   top: 100%;
   z-index: 20;
-  min-width: 9rem;
+  min-width: 10.5rem;
   background: var(--background-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -1845,10 +1854,12 @@ textarea {
   border: none;
   background: transparent;
   text-align: left;
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-3);
+  min-height: 2.75rem;
   border-radius: var(--radius-sm);
   cursor: pointer;
   color: var(--text);
+  width: 100%;
 }
 
 .sidebar__project-menu-panel button:hover,

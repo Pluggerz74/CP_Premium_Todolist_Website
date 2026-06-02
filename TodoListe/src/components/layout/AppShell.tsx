@@ -63,6 +63,7 @@ export function AppShell({
       <main className="app-main">
         <TopBar
           searchQuery={searchQuery}
+          complexityMode={complexityMode}
           onSearchChange={onSearchChange}
           onNewTask={onNewTask}
           onQuickAdd={onQuickAdd}

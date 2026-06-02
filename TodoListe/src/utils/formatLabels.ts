@@ -88,6 +88,67 @@ export function getPrioritySignalOptions(language: Language = "en") {
   }));
 }
 
+const impactSignalKeys: Record<TaskPrioritySignal, TranslationKey> = {
+  1: "impact.signal.1",
+  2: "impact.signal.2",
+  3: "impact.signal.3",
+  4: "impact.signal.4",
+  5: "impact.signal.5",
+};
+
+const urgencySignalKeys: Record<TaskPrioritySignal, TranslationKey> = {
+  1: "urgency.signal.1",
+  2: "urgency.signal.2",
+  3: "urgency.signal.3",
+  4: "urgency.signal.4",
+  5: "urgency.signal.5",
+};
+
+const effortSignalKeys: Record<TaskPrioritySignal, TranslationKey> = {
+  1: "effort.signal.1",
+  2: "effort.signal.2",
+  3: "effort.signal.3",
+  4: "effort.signal.4",
+  5: "effort.signal.5",
+};
+
+export function formatImpactSignalLabel(signal: TaskPrioritySignal, language: Language = "en"): string {
+  const key = impactSignalKeys[signal];
+  return key ? translate(language, key) : String(signal);
+}
+
+export function formatUrgencySignalLabel(signal: TaskPrioritySignal, language: Language = "en"): string {
+  const key = urgencySignalKeys[signal];
+  return key ? translate(language, key) : String(signal);
+}
+
+export function formatEffortSignalLabel(signal: TaskPrioritySignal, language: Language = "en"): string {
+  const key = effortSignalKeys[signal];
+  return key ? translate(language, key) : String(signal);
+}
+
+function getSignalOptions(
+  language: Language,
+  formatter: (signal: TaskPrioritySignal, language: Language) => string,
+) {
+  return ([1, 2, 3, 4, 5] as TaskPrioritySignal[]).map((value) => ({
+    value: String(value),
+    label: formatter(value, language),
+  }));
+}
+
+export function getImpactSignalOptions(language: Language = "en") {
+  return getSignalOptions(language, formatImpactSignalLabel);
+}
+
+export function getUrgencySignalOptions(language: Language = "en") {
+  return getSignalOptions(language, formatUrgencySignalLabel);
+}
+
+export function getEffortSignalOptions(language: Language = "en") {
+  return getSignalOptions(language, formatEffortSignalLabel);
+}
+
 export function getProjectDisplayName(project: Project, language: Language = "en"): string {
   if (project.id === INBOX_PROJECT_ID) {
     return translate(language, "nav.inbox");

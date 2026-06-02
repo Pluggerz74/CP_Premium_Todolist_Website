@@ -83,7 +83,7 @@ export function SimpleTaskCard({
           <Button
             variant="ghost"
             onClick={() => onDelete(task.id)}
-            aria-label={t("projectManage.deleteAria", { name: task.title })}
+            aria-label={t("aria.deleteTask", { title: task.title })}
           >
             {t("btn.delete")}
           </Button>

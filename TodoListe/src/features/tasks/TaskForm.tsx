@@ -5,7 +5,12 @@ import type { TaskInput, TaskPrioritySignal, TaskStatus, TaskType } from "../../
 import { getTodayIsoDate } from "../../utils/dates";
 import { getProjectAreas } from "../../utils/hierarchy";
 import { useI18n } from "../../i18n/useI18n";
-import { formatTaskTypeLabel } from "../../utils/formatLabels";
+import {
+  formatTaskTypeLabel,
+  getEffortSignalOptions,
+  getImpactSignalOptions,
+  getUrgencySignalOptions,
+} from "../../utils/formatLabels";
 import { Button } from "../../components/ui/Button";
 
 type TaskFormProps = {
@@ -16,11 +21,13 @@ type TaskFormProps = {
   onCancel: () => void;
 };
 
-const signals: TaskPrioritySignal[] = [1, 2, 3, 4, 5];
 const taskTypes: TaskType[] = ["task", "subtask", "bug", "feature", "research"];
 
 export function TaskForm({ projects, hierarchy, defaultProjectId, onSubmit, onCancel }: TaskFormProps) {
   const { t, language } = useI18n();
+  const impactOptions = getImpactSignalOptions(language);
+  const urgencyOptions = getUrgencySignalOptions(language);
+  const effortOptions = getEffortSignalOptions(language);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [projectId, setProjectId] = useState(defaultProjectId ?? projects[0]?.id ?? "");
@@ -167,30 +174,42 @@ export function TaskForm({ projects, hierarchy, defaultProjectId, onSubmit, onCa
       <div className="form__grid form__grid--three">
         <label>
           {t("label.impact")}
-          <select value={impact} onChange={(event) => setImpact(Number(event.target.value) as TaskPrioritySignal)}>
-            {signals.map((signal) => (
-              <option key={signal} value={signal}>
-                {signal}
+          <select
+            value={impact}
+            onChange={(event) => setImpact(Number(event.target.value) as TaskPrioritySignal)}
+            className="select-field"
+          >
+            {impactOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
               </option>
             ))}
           </select>
         </label>
         <label>
           {t("label.urgency")}
-          <select value={urgency} onChange={(event) => setUrgency(Number(event.target.value) as TaskPrioritySignal)}>
-            {signals.map((signal) => (
-              <option key={signal} value={signal}>
-                {signal}
+          <select
+            value={urgency}
+            onChange={(event) => setUrgency(Number(event.target.value) as TaskPrioritySignal)}
+            className="select-field"
+          >
+            {urgencyOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
               </option>
             ))}
           </select>
         </label>
         <label>
           {t("label.effort")}
-          <select value={effort} onChange={(event) => setEffort(Number(event.target.value) as TaskPrioritySignal)}>
-            {signals.map((signal) => (
-              <option key={signal} value={signal}>
-                {signal}
+          <select
+            value={effort}
+            onChange={(event) => setEffort(Number(event.target.value) as TaskPrioritySignal)}
+            className="select-field"
+          >
+            {effortOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
               </option>
             ))}
           </select>

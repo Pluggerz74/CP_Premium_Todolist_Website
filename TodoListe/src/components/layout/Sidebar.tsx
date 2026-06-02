@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { appConfig } from "../../config/app";
 import { isInboxProject } from "../../constants/inboxProject";
 import type { Project } from "../../types/project";
@@ -24,7 +24,7 @@ const simpleCoreNav: Array<{ labelKey: TranslationKey; value: AppView; icon: str
   { labelKey: "nav.myTasks", value: "simple-list", icon: "≡" },
   { labelKey: "nav.today", value: "today", icon: "◷" },
   { labelKey: "nav.upcoming", value: "upcoming", icon: "→" },
-  { labelKey: "nav.highValue", value: "high-value", icon: "★" },
+  { labelKey: "nav.important", value: "high-value", icon: "★" },
 ];
 
 const complexModeNav: Array<{ labelKey: TranslationKey; value: AppView; icon: string }> = [
@@ -68,6 +68,19 @@ export function Sidebar({
   const [menuProjectId, setMenuProjectId] = useState<string | null>(null);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
+  const openMenuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!menuProjectId) return;
+    function handlePointerDown(event: PointerEvent) {
+      const target = event.target as Node;
+      if (openMenuRef.current && !openMenuRef.current.contains(target)) {
+        setMenuProjectId(null);
+      }
+    }
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [menuProjectId]);
 
   const coreNav = complexityMode === "simple" ? simpleCoreNav : complexCoreNav;
   const taskCountByProject = useMemo(() => {
@@ -260,12 +273,16 @@ export function Sidebar({
                     </span>
                   </button>
                   {!isInbox ? (
-                    <div className="sidebar__project-menu">
+                    <div
+                      className="sidebar__project-menu"
+                      ref={menuProjectId === project.id ? openMenuRef : undefined}
+                    >
                       <button
                         type="button"
                         className="sidebar__project-menu-trigger"
                         aria-label={t("aria.projectActions", { name: displayName })}
                         aria-expanded={menuProjectId === project.id}
+                        aria-haspopup="menu"
                         onClick={() =>
                           setMenuProjectId((current) => (current === project.id ? null : project.id))
                         }
